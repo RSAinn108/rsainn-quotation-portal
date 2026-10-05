@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Calendar & Rates | RSAinn</title>
+
+<style>
+:root{
+  --green:#003b2f;
+  --green-dark:#00271f;
+  --gold:#d6a63c;
+  --gold-light:#efc45d;
+  --cream:#f7f3e8;
+  --white:#fff;
+  --text:#18201d;
+  --muted:#68746f;
+  --border:#e1ded4;
+  --danger:#b42318;
+  --shadow:0 8px 28px rgba(0,0,0,.08);
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#f4f5f3;
+  color:var(--text);
+}
+
+/* HEADER */
+
+.topbar{
+  min-height:78px;
+  background:linear-gradient(135deg,var(--green-dark),var(--green));
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 28px;
+  border-bottom:3px solid var(--gold);
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+
+.brand-mark{
+  width:52px;
+  height:52px;
+  border-radius:50%;
+  border:2px solid var(--gold);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:Georgia,serif;
+  font-weight:bold;
+  font-size:22px;
+  color:var(--gold-light);
+}
+
+.brand h1{
+  margin:0;
+  font-family:Georgia,serif;
+  font-size:25px;
+}
+
+.brand p{
+  margin:4px 0 0;
+  color:#e6d39c;
+  font-size:13px;
+}
+
+/* NAV */
+
+.nav{
+  background:white;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  gap:4px;
+  padding:0 25px;
+  overflow-x:auto;
+}
+
+.nav a{
+  text-decoration:none;
+  padding:17px 18px;
+  font-weight:700;
+  color:#53605b;
+  border-bottom:3px solid transparent;
+  white-space:nowrap;
+}
+
+.nav a:hover{
+  color:var(--green);
+}
+
+.nav a.active{
+  color:var(--green);
+  border-bottom-color:var(--gold);
+}
+
+/* MAIN */
+
+.container{
+  max-width:1380px;
+  margin:auto;
+  padding:30px 25px 60px;
+}
+
+.page-title{
+  margin-bottom:25px;
+}
+
+.page-title h2{
+  margin:0;
+  color:var(--green);
+  font-family:Georgia,serif;
+  font-size:30px;
+}
+
+.page-title p{
+  color:var(--muted);
+  margin:7px 0 0;
+}
+
+/* LAYOUT */
+
+.layout{
+  display:grid;
+  grid-template-columns:1fr 330px;
+  gap:22px;
+}
+
+/* CALENDAR PANEL */
+
+.panel{
+  background:white;
+  border:1px solid var(--border);
+  border-radius:14px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+
+.calendar-header{
+  background:var(--green);
+  color:white;
+  padding:16px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom:2px solid var(--gold);
+}
+
+.calendar-header h3{
+  margin:0;
+  font-family:Georgia,serif;
+  font-size:22px;
+}
+
+.month-btn{
+  border:1px solid rgba(255,255,255,.3);
+  background:rgba(255,255,255,.08);
+  color:white;
+  width:42px;
+  height:38px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:20px;
+}
+
+.month-btn:hover{
+  background:var(--gold);
+  color:#1b251f;
+}
+
+.calendar-wrap{
+  padding:18px;
+}
+
+.weekdays{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  margin-bottom:7px;
+}
+
+.weekday{
+  text-align:center;
+  font-size:12px;
+  font-weight:800;
+  color:var(--muted);
+  padding:8px;
+}
+
+.calendar{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:7px;
+}
+
+.day{
+  min-height:105px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  padding:9px;
+  background:#fff;
+  cursor:pointer;
+  position:relative;
+  transition:.15s;
+  user-select:none;
+}
+
+.day:hover{
+  border-color:var(--gold);
+  transform:translateY(-1px);
+}
+
+.day.blank{
+  background:#f7f7f5;
+  cursor:default;
+  border-color:#efefeb;
+}
+
+.day.blank:hover{
+  transform:none;
+}
+
+.day.selected{
+  background:#fff7df;
+  border:2px solid var(--gold);
+}
+
+.day.today{
+  box-shadow:inset 0 0 0 2px var(--green);
+}
+
+.day-number{
+  font-weight:800;
+  color:var(--green);
+  font-size:14px;
+}
+
+.rate{
+  margin-top:18px;
+  font-size:17px;
+  font-weight:800;
+  color:var(--green);
+}
+
+.no-rate{
+  margin-top:18px;
+  font-size:12px;
+  color:#a0a7a4;
+}
+
+.zero-rate{
+  color:#b42318;
+}
+
+/* RATE EDITOR */
+
+.editor-header{
+  background:var(--green);
+  color:white;
+  padding:16px 18px;
+  border-bottom:2px solid var(--gold);
+}
+
+.editor-header h3{
+  margin:0;
+  font-family:Georgia,serif;
+}
+
+.editor-body{
+  padding:20px;
+}
+
+.field{
+  margin-bottom:17px;
+}
+
+.field label{
+  display:block;
+  font-size:12px;
+  font-weight:800;
+  color:#53605b;
+  margin-bottom:7px;
+  text-transform:uppercase;
+}
+
+.field input{
+  width:100%;
+  padding:12px;
+  border:1px solid #cccac2;
+  border-radius:8px;
+  font-size:15px;
+}
+
+.field input:focus{
+  outline:none;
+  border-color:var(--gold);
+}
+
+.selection-box{
+  background:#f7f5ee;
+  border:1px solid #e4dfd1;
+  border-radius:9px;
+  padding:13px;
+  margin-bottom:18px;
+  font-size:13px;
+  line-height:1.6;
+}
+
+.selection-box strong{
+  color:var(--green);
+}
+
+.save-btn{
+  width:100%;
+  border:0;
+  background:linear-gradient(135deg,#d09b2e,#edc65f);
+  color:#17221d;
+  font-weight:800;
+  padding:13px;
+  border-radius:9px;
+  cursor:pointer;
+  font-size:14px;
+}
+
+.save-btn:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+.clear-btn{
+  width:100%;
+  margin-top:9px;
+  border:1px solid #cbc8bd;
+  background:white;
+  color:#53605b;
+  font-weight:700;
+  padding:11px;
+  border-radius:9px;
+  cursor:pointer;
+}
+
+.message{
+  margin-top:14px;
+  padding:11px;
+  border-radius:8px;
+  display:none;
+  font-size:13px;
+}
+
+.message.success{
+  display:block;
+  background:#e7f7ed;
+  color:#067647;
+}
+
+.message.error{
+  display:block;
+  background:#fff0ed;
+  color:#b42318;
+}
+
+/* HELP */
+
+.help{
+  margin-top:20px;
+  border-top:1px solid var(--border);
+  padding-top:17px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.6;
+}
+
+.legend{
+  display:flex;
+  gap:15px;
+  flex-wrap:wrap;
+  padding:0 18px 18px;
+  font-size:12px;
+  color:var(--muted);
+}
+
+.legend-item{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.legend-box{
+  width:14px;
+  height:14px;
+  border-radius:3px;
+  border:1px solid var(--border);
+}
+
+.legend-box.selected{
+  background:#fff7df;
+  border:2px solid var(--gold);
+}
+
+.legend-box.today{
+  border:2px solid var(--green);
+}
+
+/* LOADING */
+
+.loading{
+  text-align:center;
+  padding:40px;
+  color:var(--muted);
+}
+
+/* RESPONSIVE */
+
+@media(max-width:950px){
+  .layout{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:650px){
+
+  .container{
+    padding:20px 10px 45px;
+  }
+
+  .calendar-wrap{
+    padding:8px;
+  }
+
+  .calendar{
+    gap:3px;
+  }
+
+  .day{
+    min-height:78px;
+    padding:6px;
+  }
+
+  .rate{
+    font-size:12px;
+    margin-top:13px;
+  }
+
+  .no-rate{
+    font-size:10px;
+    margin-top:13px;
+  }
+
+  .weekday{
+    font-size:10px;
+    padding:5px 1px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+
+  <div class="brand">
+    <div class="brand-mark">RSA</div>
+
+    <div>
+      <h1>RSAinn</h1>
+      <p>Quotation & Booking Portal</p>
+    </div>
+  </div>
+
+  <div>
+    <strong>Driftsands 108</strong>
+  </div>
+
+</header>
+
+<nav class="nav">
+  <a href="index.html">Dashboard</a>
+  <a href="calendar.html" class="active">Calendar & Rates</a>
+  <a href="#">Create Quote</a>
+  <a href="#">Quotes</a>
+  <a href="#">Bookings</a>
+  <a href="#">Settings</a>
+</nav>
+
+<main class="container">
+
+  <div class="page-title">
+    <h2>Calendar & Rates</h2>
+    <p>
+      Manage the direct-booking nightly rates used by the RSAinn quotation system.
+    </p>
+  </div>
+
+  <div class="layout">
+
+    <!-- CALENDAR -->
+
+    <section class="panel">
+
+      <div class="calendar-header">
+
+        <button class="month-btn" id="prevMonth">
+          ‹
+        </button>
+
+        <h3 id="monthTitle">
+          Calendar
+        </h3>
+
+        <button class="month-btn" id="nextMonth">
+          ›
+        </button>
+
+      </div>
+
+      <div class="calendar-wrap">
+
+        <div class="weekdays">
+          <div class="weekday">MON</div>
+          <div class="weekday">TUE</div>
+          <div class="weekday">WED</div>
+          <div class="weekday">THU</div>
+          <div class="weekday">FRI</div>
+          <div class="weekday">SAT</div>
+          <div class="weekday">SUN</div>
+        </div>
+
+        <div id="calendar" class="calendar">
+
+          <div class="loading">
+            Loading rates...
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="legend">
+
+        <div class="legend-item">
+          <div class="legend-box selected"></div>
+          Selected dates
+        </div>
+
+        <div class="legend-item">
+          <div class="legend-box today"></div>
+          Today
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- RATE EDITOR -->
+
+    <aside class="panel">
+
+      <div class="editor-header">
+        <h3>Set Nightly Rate</h3>
+      </div>
+
+      <div class="editor-body">
+
+        <div class="selection-box">
+
+          <strong>Selected:</strong>
+
+          <div id="selectedDates">
+            Select a date on the calendar.
+          </div>
+
+        </div>
+
+        <div class="field">
+
+          <label for="nightlyRate">
+            Nightly Rate (ZAR)
+          </label>
+
+          <input
+            id="nightlyRate"
+            type="number"
+            min="0"
+            step="1"
+            placeholder="Example: 850"
+          >
+
+        </div>
+
+        <button
+          id="saveRate"
+          class="save-btn"
+          disabled
+        >
+          Save Rate
+        </button>
+
+        <button
+          id="clearSelection"
+          class="clear-btn"
+        >
+          Clear Selection
+        </button>
+
+        <div id="message" class="message"></div>
+
+        <div class="help">
+
+          <strong>How to use:</strong><br><br>
+
+          Click once to select the first date.
+
+          <br><br>
+
+          Click another date to select the full range between
+          the two dates.
+
+          <br><br>
+
+          Enter the nightly rate and press
+          <strong>Save Rate</strong>.
+
+          <br><br>
+
+          A rate of <strong>R0</strong> is allowed.
+
+          <br><br>
+
+          Changes here affect future quotations only.
+          Existing saved quotations retain the rates that were
+          used when they were generated.
+
+        </div>
+
+      </div>
+
+    </aside>
+
+  </div>
+
+</main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+/* =========================================
+   RSAinn SUPABASE CONNECTION
+========================================= */
+
+const SUPABASE_URL =
+  "https://xhxwjaobubxbretiqwsr.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_dN3KP37RRjRY-_0SFCYPkA_lsszaNoH";
+
+const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+
+/* =========================================
+   SETTINGS
+========================================= */
+
+const PROPERTY_ID = 1;
+
+let currentDate = new Date();
+
+currentDate = new Date(
+  currentDate.getFullYear(),
+  currentDate.getMonth(),
+  1
+);
+
+let rates = {};
+
+let selectionStart = null;
+let selectionEnd = null;
+
+
+/* =========================================
+   HELPERS
+========================================= */
+
+function dateToString(date){
+
+  const year = date.getFullYear();
+
+  const month =
+    String(date.getMonth()+1).padStart(2,"0");
+
+  const day =
+    String(date.getDate()).padStart(2,"0");
+
+  return `${year}-${month}-${day}`;
+}
+
+
+function stringToDate(value){
+
+  const parts = value.split("-");
+
+  return new Date(
+    Number(parts[0]),
+    Number(parts[1])-1,
+    Number(parts[2])
+  );
+}
+
+
+function formatDisplayDate(value){
+
+  if(!value) return "";
+
+  const date = stringToDate(value);
+
+  return date.toLocaleDateString(
+    "en-ZA",
+    {
+      day:"numeric",
+      month:"short",
+      year:"numeric"
+    }
+  );
+}
+
+
+function formatRand(value){
+
+  return "R" +
+    Number(value).toLocaleString(
+      "en-ZA",
+      {
+        minimumFractionDigits:0,
+        maximumFractionDigits:0
+      }
+    );
+}
+
+
+function getMonthBounds(){
+
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
+  const first =
+    new Date(year,month,1);
+
+  const last =
+    new Date(year,month+1,0);
+
+  return {
+    first:dateToString(first),
+    last:dateToString(last)
+  };
+}
+
+
+/* =========================================
+   LOAD RATES
+========================================= */
+
+async function loadRates(){
+
+  const bounds = getMonthBounds();
+
+  const {data,error} =
+    await supabaseClient
+      .from("daily_rates")
+      .select("rate_date,nightly_rate")
+      .eq("property_id",PROPERTY_ID)
+      .gte("rate_date",bounds.first)
+      .lte("rate_date",bounds.last);
+
+  if(error){
+
+    console.error(error);
+
+    showMessage(
+      "Could not load rates: " + error.message,
+      "error"
+    );
+
+    rates = {};
+
+  }else{
+
+    rates = {};
+
+    data.forEach(row => {
+      rates[row.rate_date] =
+        Number(row.nightly_rate);
+    });
+
+  }
+
+  renderCalendar();
+}
+
+
+/* =========================================
+   RENDER CALENDAR
+========================================= */
+
+function renderCalendar(){
+
+  const calendar =
+    document.getElementById("calendar");
+
+  calendar.innerHTML = "";
+
+  const year =
+    currentDate.getFullYear();
+
+  const month =
+    currentDate.getMonth();
+
+  document.getElementById("monthTitle")
+    .textContent =
+      currentDate.toLocaleDateString(
+        "en-ZA",
+        {
+          month:"long",
+          year:"numeric"
+        }
+      );
+
+  const firstDay =
+    new Date(year,month,1);
+
+  const daysInMonth =
+    new Date(year,month+1,0).getDate();
+
+  let weekday =
+    firstDay.getDay();
+
+  /* convert Sunday=0 system
+     to Monday-first calendar */
+
+  weekday =
+    weekday === 0 ? 6 : weekday-1;
+
+
+  /* EMPTY DAYS */
+
+  for(let i=0;i<weekday;i++){
+
+    const blank =
+      document.createElement("div");
+
+    blank.className =
+      "day blank";
+
+    calendar.appendChild(blank);
+  }
+
+
+  /* REAL DAYS */
+
+  for(let day=1;day<=daysInMonth;day++){
+
+    const date =
+      new Date(year,month,day);
+
+    const dateString =
+      dateToString(date);
+
+    const cell =
+      document.createElement("div");
+
+    cell.className =
+      "day";
+
+    cell.dataset.date =
+      dateString;
+
+
+    /* TODAY */
+
+    const today =
+      new Date();
+
+    if(
+      dateString ===
+      dateToString(today)
+    ){
+      cell.classList.add("today");
+    }
+
+
+    /* SELECTED RANGE */
+
+    if(isSelected(dateString)){
+      cell.classList.add("selected");
+    }
+
+
+    /* DAY NUMBER */
+
+    const number =
+      document.createElement("div");
+
+    number.className =
+      "day-number";
+
+    number.textContent =
+      day;
+
+    cell.appendChild(number);
+
+
+    /* RATE */
+
+    if(
+      Object.prototype.hasOwnProperty.call(
+        rates,
+        dateString
+      )
+    ){
+
+      const rate =
+        document.createElement("div");
+
+      rate.className =
+        "rate";
+
+      if(rates[dateString] === 0){
+        rate.classList.add("zero-rate");
+      }
+
+      rate.textContent =
+        formatRand(rates[dateString]);
+
+      cell.appendChild(rate);
+
+    }else{
+
+      const noRate =
+        document.createElement("div");
+
+      noRate.className =
+        "no-rate";
+
+      noRate.textContent =
+        "No rate";
+
+      cell.appendChild(noRate);
+
+    }
+
+
+    cell.addEventListener(
+      "click",
+      () => selectDate(dateString)
+    );
+
+    calendar.appendChild(cell);
+  }
+
+}
+
+
+/* =========================================
+   DATE SELECTION
+========================================= */
+
+function selectDate(dateString){
+
+  hideMessage();
+
+  if(!selectionStart){
+
+    selectionStart =
+      dateString;
+
+    selectionEnd =
+      null;
+
+  }else if(!selectionEnd){
+
+    if(dateString < selectionStart){
+
+      selectionEnd =
+        selectionStart;
+
+      selectionStart =
+        dateString;
+
+    }else{
+
+      selectionEnd =
+        dateString;
+    }
+
+  }else{
+
+    selectionStart =
+      dateString;
+
+    selectionEnd =
+      null;
+  }
+
+  updateSelectionDisplay();
+  renderCalendar();
+}
+
+
+function isSelected(dateString){
+
+  if(!selectionStart)
+    return false;
+
+  if(
+    selectionStart &&
+    !selectionEnd
+  ){
+    return dateString ===
+      selectionStart;
+  }
+
+  return (
+    dateString >= selectionStart &&
+    dateString <= selectionEnd
+  );
+}
+
+
+function updateSelectionDisplay(){
+
+  const display =
+    document.getElementById(
+      "selectedDates"
+    );
+
+  const button =
+    document.getElementById(
+      "saveRate"
+    );
+
+  if(!selectionStart){
+
+    display.textContent =
+      "Select a date on the calendar.";
+
+    button.disabled = true;
+
+    return;
+  }
+
+  button.disabled = false;
+
+  if(!selectionEnd){
+
+    display.textContent =
+      formatDisplayDate(selectionStart);
+
+  }else{
+
+    display.textContent =
+      formatDisplayDate(selectionStart)
+      +
+      " → "
+      +
+      formatDisplayDate(selectionEnd);
+  }
+}
+
+
+/* =========================================
+   SAVE RATE
+========================================= */
+
+async function saveRate(){
+
+  hideMessage();
+
+  if(!selectionStart){
+
+    showMessage(
+      "Please select a date.",
+      "error"
+    );
+
+    return;
+  }
+
+  const rateInput =
+    document.getElementById(
+      "nightlyRate"
+    );
+
+  if(rateInput.value === ""){
+
+    showMessage(
+      "Please enter a nightly rate.",
+      "error"
+    );
+
+    return;
+  }
+
+  const rate =
+    Number(rateInput.value);
+
+  if(
+    Number.isNaN(rate) ||
+    rate < 0
+  ){
+
+    showMessage(
+      "The rate must be R0 or higher.",
+      "error"
+    );
+
+    return;
+  }
+
+  const start =
+    selectionStart;
+
+  const end =
+    selectionEnd ||
+    selectionStart;
+
+  const button =
+    document.getElementById(
+      "saveRate"
+    );
+
+  button.disabled = true;
+  button.textContent =
+    "Saving...";
+
+
+  /*
+    We use the PostgreSQL function
+    already created in Supabase:
+
+    set_daily_rates(
+      property,
+      start date,
+      end date,
+      rate
+    )
+  */
+
+  const {error} =
+    await supabaseClient.rpc(
+      "set_daily_rates",
+      {
+        p_property_id:
+          PROPERTY_ID,
+
+        p_start_date:
+          start,
+
+        p_end_date:
+          end,
+
+        p_nightly_rate:
+          rate
+      }
+    );
+
+
+  button.textContent =
+    "Save Rate";
+
+  button.disabled = false;
+
+
+  if(error){
+
+    console.error(error);
+
+    showMessage(
+      "Could not save rate: "
+      + error.message,
+      "error"
+    );
+
+    return;
+  }
+
+
+  showMessage(
+    "Rate saved successfully.",
+    "success"
+  );
+
+  await loadRates();
+}
+
+
+/* =========================================
+   CLEAR SELECTION
+========================================= */
+
+function clearSelection(){
+
+  selectionStart = null;
+  selectionEnd = null;
+
+  document.getElementById(
+    "nightlyRate"
+  ).value = "";
+
+  updateSelectionDisplay();
+
+  hideMessage();
+
+  renderCalendar();
+}
+
+
+/* =========================================
+   MESSAGES
+========================================= */
+
+function showMessage(text,type){
+
+  const message =
+    document.getElementById("message");
+
+  message.textContent =
+    text;
+
+  message.className =
+    "message " + type;
+}
+
+
+function hideMessage(){
+
+  const message =
+    document.getElementById("message");
+
+  message.className =
+    "message";
+
+  message.textContent =
+    "";
+}
+
+
+/* =========================================
+   MONTH NAVIGATION
+========================================= */
+
+document.getElementById(
+  "prevMonth"
+).addEventListener(
+  "click",
+  async () => {
+
+    currentDate =
+      new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth()-1,
+        1
+      );
+
+    clearSelection();
+
+    await loadRates();
+  }
+);
+
+
+document.getElementById(
+  "nextMonth"
+).addEventListener(
+  "click",
+  async () => {
+
+    currentDate =
+      new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth()+1,
+        1
+      );
+
+    clearSelection();
+
+    await loadRates();
+  }
+);
+
+
+document.getElementById(
+  "saveRate"
+).addEventListener(
+  "click",
+  saveRate
+);
+
+
+document.getElementById(
+  "clearSelection"
+).addEventListener(
+  "click",
+  clearSelection
+);
+
+
+/* =========================================
+   START PORTAL
+========================================= */
+
+updateSelectionDisplay();
+loadRates();
+
+</script>
+
+</body>
+</html>
