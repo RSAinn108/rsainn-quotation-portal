@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>RSAinn Quotation Portal</title>
+
+  <style>
+    :root {
+      --green: #003b2f;
+      --green-dark: #00271f;
+      --green-light: #075844;
+      --gold: #d6a63c;
+      --gold-light: #f0ca6a;
+      --cream: #f7f3e8;
+      --white: #ffffff;
+      --text: #18201d;
+      --muted: #68746f;
+      --border: #e2dfd5;
+      --danger: #b42318;
+      --shadow: 0 8px 28px rgba(0,0,0,.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f5f3;
+      color: var(--text);
+    }
+
+    /* =========================
+       HEADER
+    ========================== */
+
+    .topbar {
+      min-height: 78px;
+      background:
+        linear-gradient(135deg, var(--green-dark), var(--green));
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 28px;
+      border-bottom: 3px solid var(--gold);
+      box-shadow: 0 4px 18px rgba(0,0,0,.18);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .brand-mark {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: 2px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Georgia, serif;
+      font-weight: bold;
+      font-size: 24px;
+      color: var(--gold-light);
+      background: rgba(0,0,0,.18);
+    }
+
+    .brand-text h1 {
+      margin: 0;
+      font-family: Georgia, serif;
+      font-size: 25px;
+      letter-spacing: .5px;
+    }
+
+    .brand-text p {
+      margin: 4px 0 0;
+      color: #e6d39c;
+      font-size: 13px;
+    }
+
+    .user-area {
+      text-align: right;
+      font-size: 13px;
+    }
+
+    .user-area strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 3px;
+    }
+
+    /* =========================
+       NAVIGATION
+    ========================== */
+
+    .nav {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 4px;
+      padding: 0 25px;
+      overflow-x: auto;
+    }
+
+    .nav button {
+      border: 0;
+      background: transparent;
+      padding: 17px 18px;
+      font-weight: 700;
+      color: #53605b;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+    }
+
+    .nav button:hover {
+      color: var(--green);
+    }
+
+    .nav button.active {
+      color: var(--green);
+      border-bottom-color: var(--gold);
+    }
+
+    /* =========================
+       MAIN CONTENT
+    ========================== */
+
+    .container {
+      max-width: 1380px;
+      margin: auto;
+      padding: 30px 25px 60px;
+    }
+
+    .welcome {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+
+    .welcome h2 {
+      margin: 0;
+      color: var(--green);
+      font-family: Georgia, serif;
+      font-size: 30px;
+    }
+
+    .welcome p {
+      margin: 7px 0 0;
+      color: var(--muted);
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, #d09b2e, #e8bd58);
+      color: #1e251f;
+      border: 0;
+      border-radius: 9px;
+      padding: 13px 20px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(172,125,28,.2);
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    /* =========================
+       STATS
+    ========================== */
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 25px;
+    }
+
+    .stat-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 21px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 5px;
+      height: 100%;
+      background: var(--gold);
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .stat-value {
+      color: var(--green);
+      font-size: 29px;
+      font-weight: 800;
+      margin-top: 8px;
+    }
+
+    .stat-sub {
+      margin-top: 5px;
+      font-size: 12px;
+      color: #87908c;
+    }
+
+    /* =========================
+       PANELS
+    ========================== */
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1.4fr .8fr;
+      gap: 20px;
+    }
+
+    .panel {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      background: var(--green);
+      color: white;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid var(--gold);
+    }
+
+    .panel-header h3 {
+      margin: 0;
+      font-family: Georgia, serif;
+      font-size: 18px;
+    }
+
+    .panel-body {
+      padding: 18px;
+    }
+
+    /* =========================
+       QUOTES TABLE
+    ========================== */
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      padding: 11px 9px;
+      font-size: 12px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 14px 9px;
+      border-bottom: 1px solid #efefeb;
+      font-size: 13px;
+    }
+
+    .empty-table {
+      text-align: center;
+      padding: 35px 10px;
+      color: #87908c;
+    }
+
+    /* =========================
+       QUICK ACTIONS
+    ========================== */
+
+    .quick-actions {
+      display: grid;
+      gap: 11px;
+    }
+
+    .action-card {
+      border: 1px solid var(--border);
+      background: #fafaf7;
+      border-radius: 10px;
+      padding: 15px;
+      cursor: pointer;
+      transition: .15s;
+    }
+
+    .action-card:hover {
+      border-color: var(--gold);
+      transform: translateY(-1px);
+      background: #fffdf7;
+    }
+
+    .action-title {
+      font-weight: 800;
+      color: var(--green);
+      margin-bottom: 4px;
+    }
+
+    .action-desc {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    /* =========================
+       STATUS
+    ========================== */
+
+    .status {
+      display: inline-block;
+      border-radius: 20px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .status.draft {
+      background: #eeeeea;
+      color: #555;
+    }
+
+    .status.sent {
+      background: #e8f1ff;
+      color: #175cd3;
+    }
+
+    .status.confirmed {
+      background: #e7f7ed;
+      color: #067647;
+    }
+
+    .status.expired {
+      background: #fff0ed;
+      color: #b42318;
+    }
+
+    /* =========================
+       FOOTER
+    ========================== */
+
+    footer {
+      text-align: center;
+      color: #8b938f;
+      font-size: 12px;
+      padding: 25px;
+    }
+
+    footer strong {
+      color: var(--green);
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================== */
+
+    @media (max-width: 900px) {
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .welcome {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 560px) {
+
+      .topbar {
+        padding: 12px 16px;
+      }
+
+      .brand-text h1 {
+        font-size: 20px;
+      }
+
+      .user-area {
+        display: none;
+      }
+
+      .container {
+        padding: 22px 14px 45px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .stat-card {
+        padding: 16px;
+      }
+
+      .stat-value {
+        font-size: 23px;
+      }
+
+      .nav {
+        padding: 0 8px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ========================
+       HEADER
+  ========================= -->
+
+  <header class="topbar">
+
+    <div class="brand">
+
+      <div class="brand-mark">
+        RSA
+      </div>
+
+      <div class="brand-text">
+        <h1>RSAinn</h1>
+        <p>Quotation & Booking Portal</p>
+      </div>
+
+    </div>
+
+    <div class="user-area">
+      <strong>RSAinn Holiday Getaways</strong>
+      Driftsands 108
+    </div>
+
+  </header>
+
+
+  <!-- ========================
+       NAVIGATION
+  ========================= -->
+
+  <nav class="nav">
+
+    <button class="active">
+      Dashboard
+    </button>
+
+    <button>
+      Calendar & Rates
+    </button>
+
+    <button>
+      Create Quote
+    </button>
+
+    <button>
+      Quotes
+    </button>
+
+    <button>
+      Bookings
+    </button>
+
+    <button>
+      Settings
+    </button>
+
+  </nav>
+
+
+  <!-- ========================
+       MAIN
+  ========================= -->
+
+  <main class="container">
+
+    <section class="welcome">
+
+      <div>
+        <h2>Quotation Dashboard</h2>
+
+        <p>
+          Manage RSAinn rates, quotations and direct bookings.
+        </p>
+      </div>
+
+      <button class="primary-btn">
+        + Create New Quote
+      </button>
+
+    </section>
+
+
+    <!-- STATS -->
+
+    <section class="stats">
+
+      <div class="stat-card">
+
+        <div class="stat-label">
+          Active Quotes
+        </div>
+
+        <div class="stat-value">
+          0
+        </div>
+
+        <div class="stat-sub">
+          Quotes currently within validity
+        </div>
+
+      </div>
+
+
+      <div class="stat-card">
+
+        <div class="stat-label">
+          Confirmed Bookings
+        </div>
+
+        <div class="stat-value">
+          0
+        </div>
+
+        <div class="stat-sub">
+          Current direct bookings
+        </div>
+
+      </div>
+
+
+      <div class="stat-card">
+
+        <div class="stat-label">
+          Pending Payments
+        </div>
+
+        <div class="stat-value">
+          R0.00
+        </div>
+
+        <div class="stat-sub">
+          Outstanding booking balances
+        </div>
+
+      </div>
+
+
+      <div class="stat-card">
+
+        <div class="stat-label">
+          Quotes This Month
+        </div>
+
+        <div class="stat-value">
+          0
+        </div>
+
+        <div class="stat-sub">
+          Generated this month
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- LOWER DASHBOARD -->
+
+    <section class="dashboard-grid">
+
+      <!-- RECENT QUOTES -->
+
+      <div class="panel">
+
+        <div class="panel-header">
+
+          <h3>Recent Quotes</h3>
+
+          <span>
+            RSAinn
+          </span>
+
+        </div>
+
+        <div class="panel-body">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>QUOTE</th>
+                <th>GUEST</th>
+                <th>STAY</th>
+                <th>TOTAL</th>
+                <th>STATUS</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              <tr>
+                <td colspan="5" class="empty-table">
+
+                  No quotations yet.<br><br>
+
+                  Your generated quotations will appear here.
+
+                </td>
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+
+      <!-- QUICK ACTIONS -->
+
+      <div class="panel">
+
+        <div class="panel-header">
+          <h3>Quick Actions</h3>
+        </div>
+
+        <div class="panel-body">
+
+          <div class="quick-actions">
+
+            <div class="action-card">
+
+              <div class="action-title">
+                + Create Quote
+              </div>
+
+              <div class="action-desc">
+                Generate a personalised RSAinn quotation using
+                the current calendar rates.
+              </div>
+
+            </div>
+
+
+            <div class="action-card">
+
+              <div class="action-title">
+                Calendar & Rates
+              </div>
+
+              <div class="action-desc">
+                View and change nightly accommodation prices.
+              </div>
+
+            </div>
+
+
+            <div class="action-card">
+
+              <div class="action-title">
+                Quotes
+              </div>
+
+              <div class="action-desc">
+                View, download, update or delete generated quotations.
+              </div>
+
+            </div>
+
+
+            <div class="action-card">
+
+              <div class="action-title">
+                Bookings
+              </div>
+
+              <div class="action-desc">
+                Manage confirmed direct bookings and payments.
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <footer>
+    <strong>RSAinn Holiday Getaways</strong><br>
+    Easy • Secure • Reliable
+  </footer>
+
+</body>
+</html>
