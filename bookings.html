@@ -132,11 +132,44 @@ body {
     margin: 7px 0 0;
     color: var(--muted);
 }
+    .month-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 190px;
+}
+
+.month-selector label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .4px;
+}
+
+.month-selector input {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: white;
+    font-size: 14px;
+    color: var(--text);
+}
 
 /* =========================
    SUMMARY CARDS
 ========================= */
+.summary-section {
+    margin-bottom: 24px;
+}
 
+.summary-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--green);
+    margin-bottom: 10px;
+    padding-left: 2px;
+}
 .summary-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -432,85 +465,143 @@ tbody tr:hover {
 
 <main class="container">
 
-    <div class="page-heading">
-        <div>
-            <h1>Bookings</h1>
-            <p>Manage confirmed RSAinn reservations.</p>
-        </div>
+ <div class="page-heading">
+
+    <div>
+        <h1>Bookings</h1>
+        <p>Manage confirmed RSAinn reservations.</p>
     </div>
 
-<section class="summary-grid">
+    <div class="month-selector">
 
-    <div class="summary-card">
-        <div class="summary-label">
-            Total Bookings
-        </div>
-        <div
-            class="summary-value"
-            id="totalBookings"
+        <label for="reportMonth">
+            Reporting Month
+        </label>
+
+        <input
+            type="month"
+            id="reportMonth"
         >
-            0
-        </div>
+
     </div>
 
-    <div class="summary-card">
-        <div class="summary-label">
-            Upcoming Stays
-        </div>
-        <div
-            class="summary-value"
-            id="upcomingBookings"
-        >
-            0
-        </div>
+</div>
+
+<!-- MONTHLY BOOKING SUMMARY -->
+
+<section class="summary-section">
+
+    <div class="summary-title" id="monthlySummaryTitle">
+        Selected Month
     </div>
 
-    <div class="summary-card">
-        <div class="summary-label">
-            Total Booking Value
+    <div class="summary-grid">
+
+        <div class="summary-card">
+            <div class="summary-label">
+                Confirmed Bookings
+            </div>
+            <div class="summary-value" id="monthlyBookings">
+                0
+            </div>
         </div>
-        <div
-            class="summary-value"
-            id="bookingValue"
-        >
-            R0.00
+
+        <div class="summary-card">
+            <div class="summary-label">
+                Booking Value
+            </div>
+            <div class="summary-value" id="monthlyValue">
+                R0,00
+            </div>
         </div>
+
+        <div class="summary-card">
+            <div class="summary-label">
+                Payments Received
+            </div>
+            <div class="summary-value" id="monthlyReceived">
+                R0,00
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-label">
+                Outstanding
+            </div>
+            <div class="summary-value" id="monthlyOutstanding">
+                R0,00
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-label">
+                Booked Nights
+            </div>
+            <div class="summary-value" id="monthlyNights">
+                0
+            </div>
+        </div>
+
     </div>
 
-    <div class="summary-card">
-        <div class="summary-label">
-            Payments Received
-        </div>
-        <div
-            class="summary-value"
-            id="paymentsReceived"
-        >
-            R0.00
-        </div>
+</section>
+
+
+<!-- ALL CONFIRMED BOOKINGS -->
+
+<section class="summary-section">
+
+    <div class="summary-title">
+        All Confirmed Bookings
     </div>
 
-    <div class="summary-card">
-        <div class="summary-label">
-            Outstanding
-        </div>
-        <div
-            class="summary-value"
-            id="outstandingAmount"
-        >
-            R0.00
-        </div>
-    </div>
+    <div class="summary-grid">
 
-    <div class="summary-card">
-        <div class="summary-label">
-            Booked Nights
+        <div class="summary-card">
+            <div class="summary-label">
+                Confirmed Bookings
+            </div>
+            <div class="summary-value" id="allBookings">
+                0
+            </div>
         </div>
-        <div
-            class="summary-value"
-            id="bookedNights"
-        >
-            0
+
+        <div class="summary-card">
+            <div class="summary-label">
+                Booking Value
+            </div>
+            <div class="summary-value" id="allValue">
+                R0,00
+            </div>
         </div>
+
+        <div class="summary-card">
+            <div class="summary-label">
+                Payments Received
+            </div>
+            <div class="summary-value" id="allReceived">
+                R0,00
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-label">
+                Outstanding
+            </div>
+            <div class="summary-value" id="allOutstanding">
+                R0,00
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-label">
+                Booked Nights
+            </div>
+            <div class="summary-value" id="allNights">
+                0
+            </div>
+        </div>
+
     </div>
 
 </section>
@@ -736,11 +827,11 @@ applyFilters();
 
 function updateSummary() {
 
-    const today = new Date();
+    /* =========================
+       CONFIRMED / ACTIVE BOOKINGS
+    ========================= */
 
-    today.setHours(0, 0, 0, 0);
-
-    const activeBookings =
+    const confirmedBookings =
         allBookings.filter(booking => {
 
             const status =
@@ -755,109 +846,243 @@ function updateSummary() {
         });
 
 
-    const upcoming =
-        activeBookings.filter(booking => {
+    /* =========================
+       SELECTED MONTH
+    ========================= */
 
-            if (!booking.check_in) {
-                return false;
+    const monthInput =
+        document.getElementById("reportMonth");
+
+    let selectedMonth =
+        monthInput.value;
+
+    if (!selectedMonth) {
+
+        const today = new Date();
+
+        selectedMonth =
+            today.getFullYear() +
+            "-" +
+            String(
+                today.getMonth() + 1
+            ).padStart(2, "0");
+
+        monthInput.value =
+            selectedMonth;
+    }
+
+
+    const [
+        selectedYear,
+        selectedMonthNumber
+    ] =
+        selectedMonth
+            .split("-")
+            .map(Number);
+
+
+    const monthName =
+        new Date(
+            selectedYear,
+            selectedMonthNumber - 1,
+            1
+        ).toLocaleDateString(
+            "en-ZA",
+            {
+                month: "long",
+                year: "numeric"
             }
+        );
 
-            const checkIn =
-                new Date(
-                    booking.check_in +
-                    "T00:00:00"
+
+    document.getElementById(
+        "monthlySummaryTitle"
+    ).textContent =
+        monthName;
+
+
+    /* =========================
+       BOOKINGS IN SELECTED MONTH
+    ========================= */
+
+    const monthlyBookings =
+        confirmedBookings.filter(
+            booking => {
+
+                if (!booking.check_in) {
+                    return false;
+                }
+
+                const checkIn =
+                    new Date(
+                        booking.check_in +
+                        "T00:00:00"
+                    );
+
+                return (
+                    checkIn.getFullYear() ===
+                        selectedYear &&
+                    checkIn.getMonth() + 1 ===
+                        selectedMonthNumber
+                );
+            }
+        );
+
+
+    /* =========================
+       CALCULATE SUMMARY
+    ========================= */
+
+    function calculateSummary(bookings) {
+
+        const bookingIds =
+            new Set(
+                bookings.map(
+                    booking =>
+                        Number(booking.id)
+                )
+            );
+
+
+        const bookingValue =
+            bookings.reduce(
+                (total, booking) =>
+                    total +
+                    Number(
+                        booking.total_due ??
+                        booking.total_amount ??
+                        0
+                    ),
+                0
+            );
+
+
+        const paymentsReceived =
+            allPayments
+                .filter(
+                    payment =>
+                        bookingIds.has(
+                            Number(
+                                payment.booking_id
+                            )
+                        )
+                )
+                .reduce(
+                    (total, payment) =>
+                        total +
+                        Number(
+                            payment.amount || 0
+                        ),
+                    0
                 );
 
-            return checkIn >= today;
-        });
+
+        const outstanding =
+            Math.max(
+                0,
+                bookingValue -
+                paymentsReceived
+            );
 
 
-    const totalValue =
-        activeBookings.reduce(
-            (total, booking) =>
-                total +
-                Number(
-                    booking.total_due ??
-                    booking.total_amount ??
-                    0
-                ),
-            0
-        );
-
-const activeBookingIds =
-    new Set(
-        activeBookings.map(
-            booking =>
-                Number(booking.id)
-        )
-    );
+        const nights =
+            bookings.reduce(
+                (total, booking) =>
+                    total +
+                    Number(
+                        booking.number_of_nights ||
+                        0
+                    ),
+                0
+            );
 
 
-const paymentsReceived =
-    allPayments
-        .filter(
-            payment =>
-                activeBookingIds.has(
-                    Number(payment.booking_id)
-                )
-        )
-        .reduce(
-            (total, payment) =>
-                total +
-                Number(payment.amount || 0),
-            0
-        );
+        return {
+            bookings:
+                bookings.length,
+
+            bookingValue,
+
+            paymentsReceived,
+
+            outstanding,
+
+            nights
+        };
+    }
 
 
-const outstandingAmount =
-    Math.max(
-        0,
-        totalValue - paymentsReceived
-    );
-    const nights =
-        activeBookings.reduce(
-            (total, booking) =>
-                total +
-                Number(
-                    booking.number_of_nights || 0
-                ),
-            0
+    /* =========================
+       MONTHLY TOTALS
+    ========================= */
+
+    const monthly =
+        calculateSummary(
+            monthlyBookings
         );
 
 
     document.getElementById(
-        "totalBookings"
+        "monthlyBookings"
     ).textContent =
-        allBookings.length;
+        monthly.bookings;
+
+    document.getElementById(
+        "monthlyValue"
+    ).textContent =
+        money(monthly.bookingValue);
+
+    document.getElementById(
+        "monthlyReceived"
+    ).textContent =
+        money(monthly.paymentsReceived);
+
+    document.getElementById(
+        "monthlyOutstanding"
+    ).textContent =
+        money(monthly.outstanding);
+
+    document.getElementById(
+        "monthlyNights"
+    ).textContent =
+        monthly.nights;
+
+
+    /* =========================
+       ALL CONFIRMED TOTALS
+    ========================= */
+
+    const overall =
+        calculateSummary(
+            confirmedBookings
+        );
 
 
     document.getElementById(
-        "upcomingBookings"
+        "allBookings"
     ).textContent =
-        upcoming.length;
-
+        overall.bookings;
 
     document.getElementById(
-        "bookingValue"
+        "allValue"
     ).textContent =
-        money(totalValue);
-document.getElementById(
-    "paymentsReceived"
-).textContent =
-    money(paymentsReceived);
-
-
-document.getElementById(
-    "outstandingAmount"
-).textContent =
-    money(outstandingAmount);
+        money(overall.bookingValue);
 
     document.getElementById(
-        "bookedNights"
+        "allReceived"
     ).textContent =
-        nights;
+        money(overall.paymentsReceived);
+
+    document.getElementById(
+        "allOutstanding"
+    ).textContent =
+        money(overall.outstanding);
+
+    document.getElementById(
+        "allNights"
+    ).textContent =
+        overall.nights;
 }
-
 
 /* =========================
    FILTER BOOKINGS
@@ -1127,7 +1352,12 @@ document
         "change",
         applyFilters
     );
-
+document
+    .getElementById("reportMonth")
+    .addEventListener(
+        "change",
+        updateSummary
+    );
 
 /* =========================
    START PAGE
