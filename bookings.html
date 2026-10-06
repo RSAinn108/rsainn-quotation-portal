@@ -924,18 +924,7 @@ function displayBookings(bookings) {
 ========================= */
 
 function viewBooking(id) {
-
-    /*
-    The individual booking page will be
-    our next step.
-
-    For now this confirms that the correct
-    booking ID is being selected.
-    */
-
-    alert(
-        "Booking selected: " + id
-    );
+    window.location.href = "booking.html?id=" + id;
 }
 
 
