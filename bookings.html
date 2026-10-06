@@ -139,7 +139,7 @@ body {
 
 .summary-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 18px;
     margin-bottom: 25px;
 }
@@ -439,29 +439,81 @@ tbody tr:hover {
         </div>
     </div>
 
-    <section class="summary-grid">
+<section class="summary-grid">
 
-        <div class="summary-card">
-            <div class="summary-label">Total Bookings</div>
-            <div class="summary-value" id="totalBookings">0</div>
+    <div class="summary-card">
+        <div class="summary-label">
+            Total Bookings
         </div>
-
-        <div class="summary-card">
-            <div class="summary-label">Upcoming Stays</div>
-            <div class="summary-value" id="upcomingBookings">0</div>
+        <div
+            class="summary-value"
+            id="totalBookings"
+        >
+            0
         </div>
+    </div>
 
-        <div class="summary-card">
-            <div class="summary-label">Total Booking Value</div>
-            <div class="summary-value" id="bookingValue">R0.00</div>
+    <div class="summary-card">
+        <div class="summary-label">
+            Upcoming Stays
         </div>
-
-        <div class="summary-card">
-            <div class="summary-label">Booked Nights</div>
-            <div class="summary-value" id="bookedNights">0</div>
+        <div
+            class="summary-value"
+            id="upcomingBookings"
+        >
+            0
         </div>
+    </div>
 
-    </section>
+    <div class="summary-card">
+        <div class="summary-label">
+            Total Booking Value
+        </div>
+        <div
+            class="summary-value"
+            id="bookingValue"
+        >
+            R0.00
+        </div>
+    </div>
+
+    <div class="summary-card">
+        <div class="summary-label">
+            Payments Received
+        </div>
+        <div
+            class="summary-value"
+            id="paymentsReceived"
+        >
+            R0.00
+        </div>
+    </div>
+
+    <div class="summary-card">
+        <div class="summary-label">
+            Outstanding
+        </div>
+        <div
+            class="summary-value"
+            id="outstandingAmount"
+        >
+            R0.00
+        </div>
+    </div>
+
+    <div class="summary-card">
+        <div class="summary-label">
+            Booked Nights
+        </div>
+        <div
+            class="summary-value"
+            id="bookedNights"
+        >
+            0
+        </div>
+    </div>
+
+</section>
 
     <section>
 
@@ -732,7 +784,36 @@ function updateSummary() {
             0
         );
 
+const activeBookingIds =
+    new Set(
+        activeBookings.map(
+            booking =>
+                Number(booking.id)
+        )
+    );
 
+
+const paymentsReceived =
+    allPayments
+        .filter(
+            payment =>
+                activeBookingIds.has(
+                    Number(payment.booking_id)
+                )
+        )
+        .reduce(
+            (total, payment) =>
+                total +
+                Number(payment.amount || 0),
+            0
+        );
+
+
+const outstandingAmount =
+    Math.max(
+        0,
+        totalValue - paymentsReceived
+    );
     const nights =
         activeBookings.reduce(
             (total, booking) =>
@@ -760,7 +841,16 @@ function updateSummary() {
         "bookingValue"
     ).textContent =
         money(totalValue);
+document.getElementById(
+    "paymentsReceived"
+).textContent =
+    money(paymentsReceived);
 
+
+document.getElementById(
+    "outstandingAmount"
+).textContent =
+    money(outstandingAmount);
 
     document.getElementById(
         "bookedNights"
