@@ -772,7 +772,136 @@ body {
 
 </main>
 
+<!-- EDIT BOOKING MODAL -->
 
+<div id="editBookingModal" class="modal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+            <h2>Edit Booking</h2>
+        </div>
+
+        <div class="modal-body">
+
+            <div class="form-group">
+                <label for="editGuestName">
+                    Guest Name
+                </label>
+
+                <input
+                    type="text"
+                    id="editGuestName"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="editContactNumber">
+                    Contact Number
+                </label>
+
+                <input
+                    type="text"
+                    id="editContactNumber"
+                >
+            </div>
+
+            <div class="grid" style="margin-bottom:0;">
+
+                <div class="form-group">
+                    <label for="editAdults">
+                        Adults
+                    </label>
+
+                    <input
+                        type="number"
+                        id="editAdults"
+                        min="1"
+                        step="1"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="editChildren">
+                        Children
+                    </label>
+
+                    <input
+                        type="number"
+                        id="editChildren"
+                        min="0"
+                        step="1"
+                    >
+                </div>
+
+            </div>
+
+            <div class="grid" style="margin-bottom:0;">
+
+                <div class="form-group">
+                    <label for="editCheckIn">
+                        Check-in
+                    </label>
+
+                    <input
+                        type="date"
+                        id="editCheckIn"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="editCheckOut">
+                        Check-out
+                    </label>
+
+                    <input
+                        type="date"
+                        id="editCheckOut"
+                    >
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <label for="editBookingSource">
+                    Booking Source
+                </label>
+
+                <select id="editBookingSource">
+                    <option value="">Select booking source...</option>
+                    <option value="Private">Private</option>
+                    <option value="Booking.com">Booking.com</option>
+                    <option value="LekkeSlaap">LekkeSlaap</option>
+                    <option value="Airbnb">Airbnb</option>
+                </select>
+            </div>
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="secondary-btn"
+                    onclick="closeEditBookingModal()"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="button"
+                    class="primary-btn"
+                    id="saveBookingButton"
+                    onclick="saveBookingChanges()"
+                >
+                    Save Changes
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 <!-- RECORD PAYMENT MODAL -->
 
 <div id="paymentModal" class="modal">
@@ -1760,6 +1889,345 @@ async function cancelBooking() {
         "Booking cancelled successfully."
     );
 }
+/* =========================
+   EDIT BOOKING
+========================= */
+
+function openEditBookingModal() {
+
+    if (!currentBooking) {
+        alert("Booking has not finished loading.");
+        return;
+    }
+
+    document.getElementById("editGuestName").value =
+        currentBooking.guest_name || "";
+
+    document.getElementById("editContactNumber").value =
+        currentBooking.contact_number || "";
+
+    document.getElementById("editAdults").value =
+        currentBooking.adults || 1;
+
+    document.getElementById("editChildren").value =
+        currentBooking.children || 0;
+
+    document.getElementById("editCheckIn").value =
+        currentBooking.check_in || "";
+
+    document.getElementById("editCheckOut").value =
+        currentBooking.check_out || "";
+
+    document.getElementById("editBookingSource").value =
+        currentBooking.booking_source || "";
+
+    document.getElementById("editBookingModal")
+        .classList.add("open");
+}
+
+
+function closeEditBookingModal() {
+
+    document.getElementById("editBookingModal")
+        .classList.remove("open");
+}
+
+
+/* =========================
+   GET RATES FOR EDITED STAY
+========================= */
+
+async function getEditedStayRates(checkInDate, checkOutDate) {
+
+    const start =
+        new Date(checkInDate + "T00:00:00");
+
+    const end =
+        new Date(checkOutDate + "T00:00:00");
+
+    const numberOfNights =
+        Math.max(
+            0,
+            Math.round(
+                (end - start) /
+                (1000 * 60 * 60 * 24)
+            )
+        );
+
+    if (numberOfNights <= 0) {
+        throw new Error(
+            "Check-out must be after check-in."
+        );
+    }
+
+    const { data, error } =
+        await supabaseClient
+            .from("daily_rates")
+            .select("rate_date, nightly_rate")
+            .eq("property_id", 1)
+            .gte("rate_date", checkInDate)
+            .lt("rate_date", checkOutDate)
+            .order("rate_date", {
+                ascending: true
+            });
+
+    if (error) {
+        throw new Error(
+            "Could not load nightly rates: " +
+            error.message
+        );
+    }
+
+    const rateRows = data || [];
+
+    if (rateRows.length !== numberOfNights) {
+        throw new Error(
+            "Please add nightly rates for every night of the edited stay first."
+        );
+    }
+
+    const accommodationTotal =
+        rateRows.reduce(
+            (total, row) =>
+                total +
+                Number(row.nightly_rate || 0),
+            0
+        );
+
+    return {
+        numberOfNights,
+        accommodationTotal
+    };
+}
+
+
+/* =========================
+   SAVE BOOKING CHANGES
+========================= */
+
+async function saveBookingChanges() {
+
+    if (!currentBooking) {
+        alert("Booking has not finished loading.");
+        return;
+    }
+
+    const guestName =
+        document.getElementById("editGuestName")
+            .value.trim();
+
+    const contactNumber =
+        document.getElementById("editContactNumber")
+            .value.trim();
+
+    const adults =
+        Number(
+            document.getElementById("editAdults").value
+        );
+
+    const children =
+        Number(
+            document.getElementById("editChildren").value
+        );
+
+    const checkIn =
+        document.getElementById("editCheckIn").value;
+
+    const checkOut =
+        document.getElementById("editCheckOut").value;
+
+    const bookingSource =
+        document.getElementById("editBookingSource").value;
+
+
+    if (!guestName) {
+        alert("Please enter the guest name.");
+        return;
+    }
+
+    if (!checkIn || !checkOut) {
+        alert(
+            "Please select check-in and check-out dates."
+        );
+        return;
+    }
+
+    if (!adults || adults < 1) {
+        alert(
+            "A booking must have at least one adult."
+        );
+        return;
+    }
+
+    if (children < 0) {
+        alert(
+            "Children cannot be less than zero."
+        );
+        return;
+    }
+
+    if (!bookingSource) {
+        alert(
+            "Please select the booking source."
+        );
+        return;
+    }
+
+
+    const button =
+        document.getElementById(
+            "saveBookingButton"
+        );
+
+    button.disabled = true;
+    button.textContent = "Saving...";
+
+
+    try {
+
+        const datesChanged =
+            checkIn !== currentBooking.check_in ||
+            checkOut !== currentBooking.check_out;
+
+
+        let numberOfNights =
+            Number(
+                currentBooking.number_of_nights || 0
+            );
+
+        let accommodationTotal =
+            Number(
+                currentBooking.accommodation_total || 0
+            );
+
+
+        if (datesChanged) {
+
+            const rateResult =
+                await getEditedStayRates(
+                    checkIn,
+                    checkOut
+                );
+
+            numberOfNights =
+                rateResult.numberOfNights;
+
+            accommodationTotal =
+                rateResult.accommodationTotal;
+        }
+
+
+        const adminFee =
+            Number(
+                currentBooking.admin_fee || 0
+            );
+
+        const discountAmount =
+            Number(
+                currentBooking.discount_amount || 0
+            );
+
+
+        const totalDue =
+            Math.max(
+                0,
+                accommodationTotal +
+                adminFee -
+                discountAmount
+            );
+
+
+        const updateData = {
+
+            guest_name: guestName,
+
+            contact_number: contactNumber,
+
+            adults: adults,
+
+            children: children,
+
+            check_in: checkIn,
+
+            check_out: checkOut,
+
+            number_of_nights: numberOfNights,
+
+            booking_source: bookingSource,
+
+            accommodation_total:
+                accommodationTotal,
+
+            total_due: totalDue,
+
+            total_amount: totalDue,
+
+            updated_at:
+                new Date().toISOString()
+        };
+
+
+        const { data, error } =
+            await supabaseClient
+                .from("bookings")
+                .update(updateData)
+                .eq("id", currentBooking.id)
+                .select()
+                .single();
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        currentBooking = data;
+
+        closeEditBookingModal();
+
+        displayBooking();
+
+        displayPayments();
+
+        alert(
+            "Booking updated successfully."
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Booking update error:",
+            error
+        );
+
+        alert(
+            "Unable to update booking: " +
+            error.message
+        );
+
+    } finally {
+
+        button.disabled = false;
+        button.textContent = "Save Changes";
+    }
+}
+
+
+/* Close Edit Booking modal when clicking outside */
+
+document
+    .getElementById("editBookingModal")
+    .addEventListener(
+        "click",
+        function(event) {
+
+            if (event.target === this) {
+                closeEditBookingModal();
+            }
+        }
+    );
+    
 /* =========================
    EVENTS
 ========================= */
