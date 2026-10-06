@@ -378,14 +378,21 @@
           </span>
         </td>
 
-        <td>
-          <button
-            class="action-btn"
-            onclick="openQuote(${quote.id})"
-          >
-            View
-          </button>
-        </td>
+       <td>
+    <button
+        class="action-btn"
+        onclick="openQuote(${quote.id})"
+    >
+        View
+    </button>
+
+    <button
+        class="action-btn delete-btn"
+        onclick="deleteQuote(${quote.id}, '${quote.quote_number || ""}')"
+    >
+        Delete
+    </button>
+</td>
       `;
 
       body.appendChild(row);
@@ -423,7 +430,47 @@
     displayQuotes(allQuotes);
 
   }
+async function deleteQuote(quoteId, quoteNumber) {
 
+    const confirmed = confirm(
+        "Are you sure you want to delete quotation " +
+        (quoteNumber || quoteId) +
+        "?\n\nThis action cannot be undone."
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+
+        const { error } = await supabaseClient
+            .from("quotes")
+            .delete()
+            .eq("id", quoteId);
+
+        if (error) {
+            throw error;
+        }
+
+        alert(
+            "Quotation " +
+            (quoteNumber || quoteId) +
+            " has been deleted successfully."
+        );
+
+        await loadQuotes();
+
+    } catch (error) {
+
+        console.error("Quote deletion error:", error);
+
+        alert(
+            "The quotation could not be deleted.\n\n" +
+            error.message
+        );
+    }
+}
   function openQuote(id) {
     window.location.href = "quote-preview.html?id=" + encodeURIComponent(id);
 }
