@@ -451,58 +451,144 @@ function money(value) {
     maximumFractionDigits: 2
   });
 }
+async function getRatesForStay(checkInDate, checkOutDate) {
 
-function getQuoteValues() {
-  let numberOfNights = 0;
+    if (!checkInDate || !checkOutDate) {
+        return {
+            success: false,
+            rates: [],
+            accommodationTotal: 0,
+            numberOfNights: 0
+        };
+    }
 
-  if (checkIn.value && checkOut.value) {
-    const start = new Date(checkIn.value + "T00:00:00");
-    const end = new Date(checkOut.value + "T00:00:00");
+    // Checkout date is NOT charged
+    const { data, error } = await supabaseClient
+        .from("daily_rates")
+        .select("rate_date, nightly_rate")
+        .eq("property_id", 1)
+        .gte("rate_date", checkInDate)
+        .lt("rate_date", checkOutDate)
+        .order("rate_date", { ascending: true });
 
-    numberOfNights = Math.max(
-      0,
-      Math.round((end - start) / (1000 * 60 * 60 * 24))
+    if (error) {
+        console.error("Could not load accommodation rates:", error);
+
+        return {
+            success: false,
+            error: error.message,
+            rates: [],
+            accommodationTotal: 0,
+            numberOfNights: 0
+        };
+    }
+
+    // Calculate expected number of nights
+    const start = new Date(checkInDate + "T00:00:00");
+    const end = new Date(checkOutDate + "T00:00:00");
+
+    const numberOfNights = Math.max(
+        0,
+        Math.round((end - start) / (1000 * 60 * 60 * 24))
     );
-  }
 
-  const rate = Number(nightlyRate.value) || 0;
-  const extraAmount = Number(extras.value) || 0;
-  const discountAmount = Number(discount.value) || 0;
+    const rateRows = data || [];
 
-  const accommodationTotal = numberOfNights * rate;
+    // Make sure EVERY night has a rate
+    if (rateRows.length !== numberOfNights) {
 
-  const totalDue = Math.max(
-    0,
-    accommodationTotal + extraAmount - discountAmount
-  );
+        console.warn(
+            "Missing rates.",
+            "Expected:", numberOfNights,
+            "Received:", rateRows.length
+        );
 
-  return {
-    numberOfNights,
-    rate,
-    extraAmount,
-    discountAmount,
-    accommodationTotal,
-    totalDue
-  };
+        return {
+            success: false,
+            missingRates: true,
+            rates: rateRows,
+            accommodationTotal: 0,
+            numberOfNights
+        };
+    }
+
+    const accommodationTotal = rateRows.reduce(
+        (total, row) =>
+            total + Number(row.nightly_rate || 0),
+        0
+    );
+
+    return {
+        success: true,
+        rates: rateRows,
+        accommodationTotal,
+        numberOfNights
+    };
+}
+async function calculateQuote() {
+
+    try {
+
+        const values = await getQuoteValues();
+
+        document.getElementById("nightCount").textContent =
+            values.numberOfNights;
+
+        document.getElementById("accommodationTotal").textContent =
+            money(values.accommodationTotal);
+
+        document.getElementById("extrasTotal").textContent =
+            money(values.extraAmount);
+
+        document.getElementById("discountTotal").textContent =
+            "- " + money(values.discountAmount);
+
+        document.getElementById("grandTotal").textContent =
+            money(values.totalDue);
+
+    } catch (error) {
+
+        console.error("Quote calculation error:", error);
+
+        document.getElementById("nightCount").textContent = "—";
+        document.getElementById("accommodationTotal").textContent =
+            "Rate required";
+        document.getElementById("grandTotal").textContent = "—";
+    }
 }
 
-function calculateQuote() {
-  const values = getQuoteValues();
+async function calculateQuote() {
 
-  document.getElementById("nightCount").textContent =
-    values.numberOfNights;
+    try {
 
-  document.getElementById("accommodationTotal").textContent =
-    money(values.accommodationTotal);
+        const values = await getQuoteValues();
 
-  document.getElementById("extrasTotal").textContent =
-    money(values.extraAmount);
+        document.getElementById("nightCount").textContent =
+            values.numberOfNights;
 
-  document.getElementById("discountTotal").textContent =
-    "- " + money(values.discountAmount);
+        document.getElementById("accommodationTotal").textContent =
+            money(values.accommodationTotal);
 
-  document.getElementById("grandTotal").textContent =
-    money(values.totalDue);
+        document.getElementById("extrasTotal").textContent =
+            money(values.extraAmount);
+
+        document.getElementById("discountTotal").textContent =
+            "- " + money(values.discountAmount);
+
+        document.getElementById("grandTotal").textContent =
+            money(values.totalDue);
+
+    } catch (error) {
+
+        console.error("Quote calculation error:", error);
+
+        document.getElementById("nightCount").textContent = "—";
+
+        document.getElementById("accommodationTotal").textContent =
+            "Rate required";
+
+        document.getElementById("grandTotal").textContent = "—";
+    }
 }
 
 checkIn.addEventListener("change", calculateQuote);
