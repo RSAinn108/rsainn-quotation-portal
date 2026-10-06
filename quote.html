@@ -557,6 +557,54 @@ async function calculateQuote() {
     }
 }
 
+async function getQuoteValues() {
+
+    const extraAmount = Number(extras.value) || 0;
+    const discountAmount = Number(discount.value) || 0;
+
+    let numberOfNights = 0;
+    let accommodationTotal = 0;
+
+    if (checkIn.value && checkOut.value) {
+
+        const rateResult = await getRatesForStay(
+            checkIn.value,
+            checkOut.value
+        );
+
+        numberOfNights = rateResult.numberOfNights || 0;
+
+        if (!rateResult.success) {
+
+            if (rateResult.missingRates) {
+                throw new Error(
+                    "One or more selected nights do not have a rate."
+                );
+            }
+
+            throw new Error(
+                rateResult.error || "Unable to load nightly rates."
+            );
+        }
+
+        accommodationTotal = rateResult.accommodationTotal;
+    }
+
+    const totalDue = Math.max(
+        0,
+        accommodationTotal + extraAmount - discountAmount
+    );
+
+    return {
+        numberOfNights,
+        extraAmount,
+        discountAmount,
+        accommodationTotal,
+        totalDue
+    };
+}
+
+
 async function calculateQuote() {
 
     try {
@@ -626,7 +674,7 @@ saveQuoteButton.addEventListener("click", async function () {
     return;
   }
 
-  const values = getQuoteValues();
+  const values = await getQuoteValues();
 
   const quoteNumber =
     "RSA-" +
