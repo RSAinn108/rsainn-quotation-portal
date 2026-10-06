@@ -501,7 +501,7 @@ const { data, error } = await supabaseClient
     status: "Draft",
     quote_date: new Date().toISOString().split("T")[0]
   })
-  .select();
+  });
 
 if (error) {
   console.error("Supabase error:", error);
