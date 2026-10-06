@@ -887,24 +887,24 @@ document.getElementById("convertBooking").addEventListener("click", async functi
         const { data: booking, error: bookingError } =
             await supabaseClient
                 .from("bookings")
-                .insert({
-                    booking_number: bookingNumber,
-                    quote_id: currentQuote.id,
-                    property_id: currentQuote.property_id,
-                    guest_name: currentQuote.guest_name,
-                    contact_number: currentQuote.contact_number,
-                    email: currentQuote.email,
-                    adults: currentQuote.adults,
-                    children: currentQuote.children || 0,
-                    check_in: currentQuote.check_in,
-                    check_out: currentQuote.check_out,
-                    number_of_nights: currentQuote.number_of_nights,
-                    accommodation_total: currentQuote.accommodation_total,
-                    discount_amount: currentQuote.discount_amount || 0,
-                    admin_fee: currentQuote.admin_fee || 0,
-                    total_due: currentQuote.total_due,
-                    status: "confirmed"
-                })
+               .insert({
+    booking_number: bookingNumber,
+    quote_id: currentQuote.id,
+    property_id: currentQuote.property_id,
+    guest_name: currentQuote.guest_name,
+    contact_number: currentQuote.contact_number,
+    adults: currentQuote.adults,
+    children: currentQuote.children || 0,
+    check_in: currentQuote.check_in,
+    check_out: currentQuote.check_out,
+    number_of_nights: currentQuote.number_of_nights,
+    accommodation_total: currentQuote.accommodation_total,
+    discount_amount: currentQuote.discount_amount || 0,
+    admin_fee: currentQuote.admin_fee || 0,
+    total_due: currentQuote.total_due,
+    total_amount: currentQuote.total_due,
+    booking_status: "confirmed"
+})
                 .select()
                 .single();
 
