@@ -425,19 +425,8 @@
   }
 
   function openQuote(id) {
-
-    /*
-      The next stage will create the full quotation
-      Preview / Edit / PDF page.
-    */
-
-    alert(
-      "Quote #" +
-      id +
-      " loaded successfully. Preview will be connected next."
-    );
-
-  }
+    window.location.href = "quote-preview.html?id=" + encodeURIComponent(id);
+}
 
   document
     .getElementById("searchQuotes")
