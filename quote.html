@@ -553,26 +553,48 @@ saveQuoteButton.addEventListener("click", async function () {
 
   try {
 
-    const { data, error } = await supabaseClient
-      .from("quotes")
-      .insert({
-        property_id: 1,
-        quote_number: quoteNumber,
-        guest_name: guestName,
-        contact_number: guestPhone,
-        email: guestEmail,
-        adults: guests,
-        children: 0,
-        check_in: checkIn.value,
-        check_out: checkOut.value,
-        number_of_nights: values.numberOfNights,
-        accommodation_total: values.accommodationTotal,
-        discount_amount: values.discountAmount,
-        admin_fee: values.extraAmount,
-        total_due: values.totalDue,
-        status: "draft",
-        quote_date: new Date().toISOString().split("T")[0]
-      });
+    let saveResult;
+
+const quoteData = {
+  property_id: 1,
+  guest_name: guestName,
+  contact_number: guestPhone,
+  email: guestEmail,
+  adults: guests,
+  children: 0,
+  check_in: checkIn.value,
+  check_out: checkOut.value,
+  number_of_nights: values.numberOfNights,
+  accommodation_total: values.accommodationTotal,
+  discount_amount: values.discountAmount,
+  admin_fee: values.extraAmount,
+  total_due: values.totalDue,
+  status: "draft",
+  quote_date: new Date().toISOString().split("T")[0]
+};
+
+if (isEditMode && editQuoteId) {
+
+  // UPDATE EXISTING QUOTATION
+  saveResult = await supabaseClient
+    .from("quotes")
+    .update(quoteData)
+    .eq("id", editQuoteId)
+    .select();
+
+} else {
+
+  // CREATE NEW QUOTATION
+  quoteData.quote_number = quoteNumber;
+
+  saveResult = await supabaseClient
+    .from("quotes")
+    .insert(quoteData)
+    .select();
+
+}
+
+const { data, error } = saveResult;
 
     if (error) {
       console.error("Supabase error:", error);
@@ -587,13 +609,19 @@ saveQuoteButton.addEventListener("click", async function () {
 
     console.log("Saved quotation:", data);
 
-    alert(
-      "Quote " +
-      quoteNumber +
-      " saved successfully for " +
-      guestName +
-      "."
-    );
+  alert(
+  "Quote " +
+  quoteNumber +
+  " saved successfully for " +
+  guestName +
+  "."
+);
+
+if (isEditMode && editQuoteId) {
+  window.location.href =
+    "quote-preview.html?id=" + encodeURIComponent(editQuoteId);
+  return;
+}
 
   } catch (error) {
 
