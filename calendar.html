@@ -784,6 +784,9 @@ async function loadRates(){
       .eq("property_id",PROPERTY_ID)
       .gte("rate_date",bounds.first)
       .lte("rate_date",bounds.last);
+  console.log("MONTH BOUNDS:", bounds);
+console.log("SUPABASE RATE DATA:", data);
+console.log("SUPABASE RATE ERROR:", error);
 
   if(error){
 
