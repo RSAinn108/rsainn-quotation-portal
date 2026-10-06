@@ -380,7 +380,71 @@ const nightlyRate = document.getElementById("nightlyRate");
 const extras = document.getElementById("extras");
 const discount = document.getElementById("discount");
 const saveQuoteButton = document.getElementById("saveQuote");
+// ========================================
+// EDIT EXISTING QUOTE MODE
+// ========================================
 
+const urlParams = new URLSearchParams(window.location.search);
+const editQuoteId = urlParams.get("edit");
+
+let isEditMode = false;
+
+async function loadQuoteForEditing() {
+
+  if (!editQuoteId) {
+    return;
+  }
+
+  isEditMode = true;
+
+  const { data: quote, error } = await supabaseClient
+    .from("quotes")
+    .select("*")
+    .eq("id", editQuoteId)
+    .single();
+
+  if (error) {
+    console.error("Unable to load quote:", error);
+    alert("Unable to load quotation for editing.\n\n" + error.message);
+    return;
+  }
+
+  // Guest details
+  document.getElementById("guestName").value = quote.guest_name || "";
+  document.getElementById("mobile").value = quote.contact_number || "";
+  document.getElementById("email").value = quote.email || "";
+  document.getElementById("guests").value = quote.adults || 1;
+
+  // Stay details
+  document.getElementById("checkIn").value = quote.check_in || "";
+  document.getElementById("checkOut").value = quote.check_out || "";
+
+  // Financial details
+  document.getElementById("extras").value = quote.admin_fee || 0;
+  document.getElementById("discount").value = quote.discount_amount || 0;
+
+  // Calculate nightly rate from saved accommodation total
+  if (Number(quote.number_of_nights) > 0) {
+    document.getElementById("nightlyRate").value =
+      Number(quote.accommodation_total) / Number(quote.number_of_nights);
+  }
+
+  // Change page from Create to Edit
+  const heading = document.querySelector("h1");
+
+  if (heading) {
+    heading.textContent = "Edit Quote";
+  }
+
+  saveQuoteButton.textContent = "Update Quote";
+
+  // Recalculate display
+  calculateQuote();
+
+  console.log("Quotation loaded for editing:", quote);
+}
+
+loadQuoteForEditing();
 function money(value) {
   return "R" + Number(value).toLocaleString("en-ZA", {
     minimumFractionDigits: 2,
