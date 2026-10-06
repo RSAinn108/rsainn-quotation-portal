@@ -436,7 +436,7 @@ console.log("RSAinn Quotation Portal connected to Supabase.");
   extras.addEventListener("input", calculateQuote);
   discount.addEventListener("input", calculateQuote);
 
-  document.getElementById("saveQuote").addEventListener("click", function () {
+ document.getElementById("saveQuote").addEventListener("click", async function () {
 
     const guestName =
       document.getElementById("guestName").value.trim();
@@ -456,8 +456,68 @@ console.log("RSAinn Quotation Portal connected to Supabase.");
       return;
     }
 
-    alert(
-      "Quotation form is working correctly. Supabase saving will be connected next."
+   const start = new Date(checkIn.value + "T00:00:00");
+const end = new Date(checkOut.value + "T00:00:00");
+
+const numberOfNights = Math.round(
+  (end - start) / (1000 * 60 * 60 * 24)
+);
+
+const rate = Number(nightlyRate.value) || 0;
+const accommodationTotal = numberOfNights * rate;
+const discountAmount = Number(discount.value) || 0;
+const extraAmount = Number(extras.value) || 0;
+
+const totalDue = Math.max(
+  0,
+  accommodationTotal + extraAmount - discountAmount
+);
+
+const quoteNumber =
+  "RSA-" +
+  new Date().getFullYear() +
+  "-" +
+  Date.now().toString().slice(-6);
+
+const { data, error } = await supabaseClient
+  .from("quotes")
+  .insert({
+    quote_number: quoteNumber,
+    guest_name: guestName,
+    contact_number:
+      document.getElementById("mobile").value.trim(),
+    email:
+      document.getElementById("email").value.trim(),
+    adults:
+      Number(document.getElementById("guests").value) || 1,
+    children: 0,
+    check_in: checkIn.value,
+    check_out: checkOut.value,
+    number_of_nights: numberOfNights,
+    accommodation_total: accommodationTotal,
+    discount_amount: discountAmount,
+    admin_fee: extraAmount,
+    total_due: totalDue,
+    status: "Draft",
+    quote_date: new Date().toISOString().split("T")[0]
+  })
+  .select();
+
+if (error) {
+  console.error("Supabase error:", error);
+  alert("Quote could not be saved: " + error.message);
+  return;
+}
+
+alert(
+  "Quote " +
+    quoteNumber +
+    " saved successfully for " +
+    guestName +
+    "."
+);
+
+console.log("Saved quotation:", data);
     );
 
   });
