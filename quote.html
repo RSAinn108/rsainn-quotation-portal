@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Quote | RSAinn</title>
+
+  <style>
+    :root {
+      --green: #003b2f;
+      --green-dark: #00271f;
+      --green-light: #075844;
+      --gold: #d6a63c;
+      --cream: #f7f3e8;
+      --white: #ffffff;
+      --text: #18201d;
+      --muted: #68746f;
+      --border: #e2dfd5;
+      --danger: #b42318;
+      --shadow: 0 8px 28px rgba(0,0,0,.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f5f6f4;
+      color: var(--text);
+    }
+
+    header {
+      background: var(--green);
+      color: white;
+      padding: 24px;
+    }
+
+    .header-inner {
+      max-width: 1100px;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      opacity: .8;
+      font-size: 14px;
+    }
+
+    .back-btn {
+      color: white;
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,.35);
+      padding: 10px 16px;
+      border-radius: 8px;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 30px auto;
+      padding: 0 20px 50px;
+    }
+
+    .page-title {
+      margin-bottom: 25px;
+    }
+
+    .page-title h2 {
+      margin-bottom: 5px;
+    }
+
+    .page-title p {
+      margin-top: 0;
+      color: var(--muted);
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 25px;
+      margin-bottom: 22px;
+    }
+
+    .card h3 {
+      margin-top: 0;
+      color: var(--green);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 7px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      background: white;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: 2px solid rgba(7,88,68,.15);
+      border-color: var(--green-light);
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .summary {
+      background: var(--cream);
+      border: 1px solid #eadfbf;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(0,0,0,.08);
+    }
+
+    .summary-row:last-child {
+      border-bottom: none;
+    }
+
+    .total {
+      font-size: 22px;
+      font-weight: bold;
+      color: var(--green);
+      padding-top: 18px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 25px;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 13px 22px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .secondary-btn {
+      background: #e8ebe9;
+      color: var(--text);
+    }
+
+    .primary-btn {
+      background: var(--green);
+      color: white;
+    }
+
+    .primary-btn:hover {
+      background: var(--green-light);
+    }
+
+    @media (max-width: 700px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .full {
+        grid-column: auto;
+      }
+
+      .header-inner {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-inner">
+    <div>
+      <h1>RSAinn Holiday Getaways</h1>
+      <p>Quotation & Booking Portal</p>
+    </div>
+
+    <a href="index.html" class="back-btn">← Back to Dashboard</a>
+  </div>
+</header>
+
+<main>
+
+  <div class="page-title">
+    <h2>Create New Quote</h2>
+    <p>Prepare a personalised accommodation quotation.</p>
+  </div>
+
+  <div class="card">
+    <h3>Guest Details</h3>
+
+    <div class="form-grid">
+
+      <div>
+        <label>Guest Name</label>
+        <input type="text" id="guestName" placeholder="Full name">
+      </div>
+
+      <div>
+        <label>Mobile Number</label>
+        <input type="tel" id="guestPhone" placeholder="+27">
+      </div>
+
+      <div>
+        <label>Email Address</label>
+        <input type="email" id="guestEmail" placeholder="guest@email.com">
+      </div>
+
+      <div>
+        <label>Number of Guests</label>
+        <input type="number" id="guests" min="1" max="6" value="2">
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="card">
+    <h3>Stay Details</h3>
+
+    <div class="form-grid">
+
+      <div>
+        <label>Property</label>
+        <select id="property">
+          <option value="Driftsands 108">Driftsands 108 – Uvongo</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Nightly Rate (R)</label>
+        <input type="number" id="nightlyRate" value="1250" min="0">
+      </div>
+
+      <div>
+        <label>Check-in</label>
+        <input type="date" id="checkIn">
+      </div>
+
+      <div>
+        <label>Check-out</label>
+        <input type="date" id="checkOut">
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="card">
+    <h3>Additional Charges / Discounts</h3>
+
+    <div class="form-grid">
+
+      <div>
+        <label>Additional Charges (R)</label>
+        <input type="number" id="extras" value="0" min="0">
+      </div>
+
+      <div>
+        <label>Discount (R)</label>
+        <input type="number" id="discount" value="0" min="0">
+      </div>
+
+      <div class="full">
+        <label>Notes</label>
+        <textarea id="notes"
+          placeholder="Special arrangements, quotation notes or guest requests..."></textarea>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="card summary">
+    <h3>Quotation Summary</h3>
+
+    <div class="summary-row">
+      <span>Number of nights</span>
+      <strong id="nightCount">0</strong>
+    </div>
+
+    <div class="summary-row">
+      <span>Accommodation</span>
+      <strong id="accommodationTotal">R0.00</strong>
+    </div>
+
+    <div class="summary-row">
+      <span>Additional charges</span>
+      <strong id="extrasTotal">R0.00</strong>
+    </div>
+
+    <div class="summary-row">
+      <span>Discount</span>
+      <strong id="discountTotal">- R0.00</strong>
+    </div>
+
+    <div class="summary-row total">
+      <span>Total Quote</span>
+      <span id="grandTotal">R0.00</span>
+    </div>
+  </div>
+
+
+  <div class="actions">
+    <button class="secondary-btn"
+      onclick="window.location.href='index.html'">
+      Cancel
+    </button>
+
+    <button class="primary-btn" id="saveQuote">
+      Save Quote
+    </button>
+  </div>
+
+</main>
+
+
+<script>
+
+  const checkIn = document.getElementById("checkIn");
+  const checkOut = document.getElementById("checkOut");
+  const nightlyRate = document.getElementById("nightlyRate");
+  const extras = document.getElementById("extras");
+  const discount = document.getElementById("discount");
+
+  function money(value) {
+    return "R" + Number(value).toLocaleString("en-ZA", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  function calculateQuote() {
+
+    let nights = 0;
+
+    if (checkIn.value && checkOut.value) {
+
+      const start = new Date(checkIn.value + "T00:00:00");
+      const end = new Date(checkOut.value + "T00:00:00");
+
+      const difference = end - start;
+
+      nights = Math.max(
+        0,
+        Math.round(difference / (1000 * 60 * 60 * 24))
+      );
+    }
+
+    const rate = Number(nightlyRate.value) || 0;
+    const extraAmount = Number(extras.value) || 0;
+    const discountAmount = Number(discount.value) || 0;
+
+    const accommodation = nights * rate;
+
+    const total = Math.max(
+      0,
+      accommodation + extraAmount - discountAmount
+    );
+
+    document.getElementById("nightCount").textContent = nights;
+
+    document.getElementById("accommodationTotal").textContent =
+      money(accommodation);
+
+    document.getElementById("extrasTotal").textContent =
+      money(extraAmount);
+
+    document.getElementById("discountTotal").textContent =
+      "- " + money(discountAmount);
+
+    document.getElementById("grandTotal").textContent =
+      money(total);
+  }
+
+  checkIn.addEventListener("change", calculateQuote);
+  checkOut.addEventListener("change", calculateQuote);
+  nightlyRate.addEventListener("input", calculateQuote);
+  extras.addEventListener("input", calculateQuote);
+  discount.addEventListener("input", calculateQuote);
+
+  document.getElementById("saveQuote").addEventListener("click", function () {
+
+    const guestName =
+      document.getElementById("guestName").value.trim();
+
+    if (!guestName) {
+      alert("Please enter the guest's name.");
+      return;
+    }
+
+    if (!checkIn.value || !checkOut.value) {
+      alert("Please select the check-in and check-out dates.");
+      return;
+    }
+
+    if (new Date(checkOut.value) <= new Date(checkIn.value)) {
+      alert("Check-out must be after check-in.");
+      return;
+    }
+
+    alert(
+      "Quotation form is working correctly. Supabase saving will be connected next."
+    );
+
+  });
+
+  calculateQuote();
+
+</script>
+
+</body>
+</html>
