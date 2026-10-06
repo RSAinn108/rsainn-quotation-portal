@@ -295,6 +295,29 @@ tbody tr:hover {
     background: #f0f1ef;
     color: #4c5753;
 }
+    .payment-badge {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.payment-pending {
+    background: #fff5d6;
+    color: #946200;
+}
+
+.payment-partial {
+    background: #fff1cc;
+    color: #8a5a00;
+}
+
+.payment-paid {
+    background: #e6f6ee;
+    color: var(--success);
+}
 
 /* =========================
    BUTTONS
@@ -468,14 +491,15 @@ tbody tr:hover {
                 <thead>
                     <tr>
                         <th>Booking</th>
-                        <th>Guest</th>
-                        <th>Check-in</th>
-                        <th>Check-out</th>
-                        <th>Nights</th>
-                        <th>Guests</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                        <th></th>
+<th>Guest</th>
+<th>Check-in</th>
+<th>Check-out</th>
+<th>Nights</th>
+<th>Guests</th>
+<th>Total</th>
+<th>Status</th>
+<th>Payment</th>
+<th></th>
                     </tr>
                 </thead>
 
@@ -514,7 +538,7 @@ const supabaseClient = supabase.createClient(
 const PROPERTY_ID = 1;
 
 let allBookings = [];
-
+let allPayments = [];
 
 /* =========================
    HELPERS
@@ -633,8 +657,24 @@ async function loadBookings() {
 
     allBookings = data || [];
 
-    updateSummary();
-    applyFilters();
+const { data: paymentData, error: paymentError } =
+    await supabaseClient
+        .from("payments")
+        .select("booking_id, amount");
+
+if (paymentError) {
+    console.error(
+        "Payment loading error:",
+        paymentError
+    );
+
+    allPayments = [];
+} else {
+    allPayments = paymentData || [];
+}
+
+updateSummary();
+applyFilters();
 }
 
 
@@ -812,7 +852,51 @@ function applyFilters() {
     displayBookings(filtered);
 }
 
+function getPaymentStatus(booking) {
 
+    const bookingTotal =
+        Number(
+            booking.total_due ??
+            booking.total_amount ??
+            0
+        );
+
+    const received =
+        allPayments
+            .filter(
+                payment =>
+                    Number(payment.booking_id) ===
+                    Number(booking.id)
+            )
+            .reduce(
+                (total, payment) =>
+                    total +
+                    Number(payment.amount || 0),
+                0
+            );
+
+    if (
+        bookingTotal > 0 &&
+        received >= bookingTotal
+    ) {
+        return {
+            label: "Paid",
+            className: "payment-paid"
+        };
+    }
+
+    if (received > 0) {
+        return {
+            label: "Partially Paid",
+            className: "payment-partial"
+        };
+    }
+
+    return {
+        label: "Pending",
+        className: "payment-pending"
+    };
+}
 /* =========================
    DISPLAY BOOKINGS
 ========================= */
@@ -866,7 +950,8 @@ function displayBookings(bookings) {
         const status =
             booking.booking_status ||
             "confirmed";
-
+const paymentStatus =
+    getPaymentStatus(booking);
 
         row.innerHTML = `
             <td class="booking-number">
@@ -897,20 +982,26 @@ function displayBookings(bookings) {
                 ${money(total)}
             </td>
 
-            <td>
-                <span class="status ${statusClass(status)}">
-                    ${status}
-                </span>
-            </td>
+          <td>
+    <span class="status ${statusClass(status)}">
+        ${status}
+    </span>
+</td>
 
-            <td>
-                <button
-                    class="action-btn"
-                    onclick="viewBooking(${booking.id})"
-                >
-                    View
-                </button>
-            </td>
+<td>
+    <span class="payment-badge ${paymentStatus.className}">
+        ${paymentStatus.label}
+    </span>
+</td>
+
+<td>
+    <button
+        class="action-btn"
+        onclick="viewBooking(${booking.id})"
+    >
+        View
+    </button>
+</td>
         `;
 
 
