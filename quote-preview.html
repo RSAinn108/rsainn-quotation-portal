@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Quotation Preview | RSAinn</title>
+
+<style>
+:root {
+  --green:#004d3b;
+  --green-light:#0a6852;
+  --background:#f4f6f4;
+  --white:#ffffff;
+  --text:#17201d;
+  --muted:#69736e;
+  --border:#dde3df;
+  --shadow:0 10px 30px rgba(0,0,0,.08);
+}
+
+* {
+  box-sizing:border-box;
+}
+
+body {
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:var(--background);
+  color:var(--text);
+}
+
+/* HEADER */
+
+header {
+  background:var(--green);
+  color:white;
+  padding:20px;
+}
+
+.header-inner {
+  max-width:1100px;
+  margin:auto;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+}
+
+.brand h1 {
+  margin:0;
+  font-size:28px;
+}
+
+.brand p {
+  margin:5px 0 0;
+  opacity:.8;
+}
+
+.back-btn {
+  color:white;
+  text-decoration:none;
+  border:1px solid rgba(255,255,255,.35);
+  padding:11px 16px;
+  border-radius:8px;
+  font-weight:bold;
+}
+
+/* PAGE */
+
+main {
+  max-width:1100px;
+  margin:30px auto;
+  padding:0 20px;
+}
+
+.action-bar {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom:20px;
+  flex-wrap:wrap;
+}
+
+.action-group {
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+button,
+.action-link {
+  border:none;
+  padding:11px 16px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+  text-decoration:none;
+  font-size:14px;
+}
+
+.primary {
+  background:var(--green);
+  color:white;
+}
+
+.secondary {
+  background:white;
+  color:var(--green);
+  border:1px solid var(--border);
+}
+
+.disabled {
+  opacity:.5;
+  cursor:not-allowed;
+}
+
+/* QUOTATION */
+
+.quote {
+  background:white;
+  border-radius:14px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+
+.quote-header {
+  background:var(--green);
+  color:white;
+  padding:32px;
+  display:flex;
+  justify-content:space-between;
+  gap:30px;
+}
+
+.quote-brand h2 {
+  margin:0;
+  font-size:30px;
+}
+
+.quote-brand p {
+  margin:7px 0 0;
+  opacity:.85;
+}
+
+.quote-heading {
+  text-align:right;
+}
+
+.quote-heading h1 {
+  margin:0;
+  font-size:34px;
+  letter-spacing:1px;
+}
+
+.quote-heading p {
+  margin:7px 0 0;
+}
+
+.quote-body {
+  padding:32px;
+}
+
+/* STATUS */
+
+.status-row {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:28px;
+  gap:20px;
+  flex-wrap:wrap;
+}
+
+.status {
+  display:inline-block;
+  background:#e8f3ef;
+  color:var(--green);
+  padding:7px 12px;
+  border-radius:20px;
+  font-size:13px;
+  font-weight:bold;
+  text-transform:capitalize;
+}
+
+/* SECTIONS */
+
+.section {
+  margin-bottom:30px;
+}
+
+.section-title {
+  color:var(--green);
+  font-size:18px;
+  font-weight:bold;
+  border-bottom:1px solid var(--border);
+  padding-bottom:10px;
+  margin-bottom:18px;
+}
+
+.info-grid {
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:18px 30px;
+}
+
+.info-item label {
+  display:block;
+  font-size:12px;
+  color:var(--muted);
+  text-transform:uppercase;
+  margin-bottom:5px;
+  font-weight:bold;
+}
+
+.info-item div {
+  font-size:16px;
+}
+
+/* PRICING */
+
+.price-table {
+  width:100%;
+  border-collapse:collapse;
+}
+
+.price-table td {
+  padding:13px 0;
+  border-bottom:1px solid var(--border);
+}
+
+.price-table td:last-child {
+  text-align:right;
+  font-weight:bold;
+}
+
+.total-row td {
+  border-bottom:none;
+  padding-top:20px;
+  font-size:22px;
+  color:var(--green);
+  font-weight:bold;
+}
+
+/* FOOTER */
+
+.quote-footer {
+  background:#f8faf8;
+  border-top:1px solid var(--border);
+  padding:25px 32px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.6;
+}
+
+.loading {
+  padding:70px 20px;
+  text-align:center;
+  color:var(--muted);
+}
+
+.error {
+  color:#a52828;
+}
+
+/* MOBILE */
+
+@media(max-width:700px) {
+
+  .quote-header {
+    flex-direction:column;
+  }
+
+  .quote-heading {
+    text-align:left;
+  }
+
+  .info-grid {
+    grid-template-columns:1fr;
+  }
+
+  .quote-body {
+    padding:22px;
+  }
+
+}
+
+/* PRINT / FUTURE PDF */
+
+@media print {
+
+  body {
+    background:white;
+  }
+
+  header,
+  .action-bar {
+    display:none !important;
+  }
+
+  main {
+    margin:0;
+    padding:0;
+    max-width:none;
+  }
+
+  .quote {
+    box-shadow:none;
+    border-radius:0;
+  }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+
+<div class="header-inner">
+
+  <div class="brand">
+    <h1>RSAinn Holiday Getaways</h1>
+    <p>Quotation & Booking Portal</p>
+  </div>
+
+  <a href="quotes.html" class="back-btn">
+    ← Saved Quotes
+  </a>
+
+</div>
+
+</header>
+
+<main>
+
+<div class="action-bar">
+
+  <a href="quotes.html" class="action-link secondary">
+    ← Back
+  </a>
+
+  <div class="action-group">
+
+    <button class="secondary" id="editQuote">
+      Edit Quote
+    </button>
+
+    <button class="secondary" id="pdfQuote">
+      Download PDF
+    </button>
+
+    <button class="secondary" id="sendQuote">
+      Send / Share
+    </button>
+
+    <button class="primary" id="convertBooking">
+      Convert to Booking
+    </button>
+
+  </div>
+
+</div>
+
+
+<div class="quote" id="quoteContainer">
+
+  <div id="loading" class="loading">
+    Loading quotation...
+  </div>
+
+  <div id="quoteContent" style="display:none;">
+
+    <div class="quote-header">
+
+      <div class="quote-brand">
+        <h2>RSAinn</h2>
+        <p>Holiday Getaways</p>
+      </div>
+
+      <div class="quote-heading">
+        <h1>QUOTATION</h1>
+        <p id="quoteNumber"></p>
+      </div>
+
+    </div>
+
+
+    <div class="quote-body">
+
+      <div class="status-row">
+
+        <div>
+          <strong>Quotation Date:</strong>
+          <span id="quoteDate"></span>
+        </div>
+
+        <span class="status" id="quoteStatus">
+          Draft
+        </span>
+
+      </div>
+
+
+      <!-- GUEST -->
+
+      <div class="section">
+
+        <div class="section-title">
+          Guest Details
+        </div>
+
+        <div class="info-grid">
+
+          <div class="info-item">
+            <label>Guest Name</label>
+            <div id="guestName"></div>
+          </div>
+
+          <div class="info-item">
+            <label>Mobile Number</label>
+            <div id="mobile"></div>
+          </div>
+
+          <div class="info-item">
+            <label>Email Address</label>
+            <div id="email"></div>
+          </div>
+
+          <div class="info-item">
+            <label>Number of Guests</label>
+            <div id="guests"></div>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- STAY -->
+
+      <div class="section">
+
+        <div class="section-title">
+          Stay Details
+        </div>
+
+        <div class="info-grid">
+
+          <div class="info-item">
+            <label>Property</label>
+            <div>Driftsands 108 – Uvongo</div>
+          </div>
+
+          <div class="info-item">
+            <label>Number of Nights</label>
+            <div id="nights"></div>
+          </div>
+
+          <div class="info-item">
+            <label>Check-in</label>
+            <div id="checkIn"></div>
+          </div>
+
+          <div class="info-item">
+            <label>Check-out</label>
+            <div id="checkOut"></div>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- PRICING -->
+
+      <div class="section">
+
+        <div class="section-title">
+          Quotation Summary
+        </div>
+
+        <table class="price-table">
+
+          <tr>
+            <td>Accommodation</td>
+            <td id="accommodation"></td>
+          </tr>
+
+          <tr>
+            <td>Additional Fees / Extras</td>
+            <td id="adminFee"></td>
+          </tr>
+
+          <tr>
+            <td>Discount</td>
+            <td id="discount"></td>
+          </tr>
+
+          <tr class="total-row">
+            <td>Total Due</td>
+            <td id="totalDue"></td>
+          </tr>
+
+        </table>
+
+      </div>
+
+
+      <!-- VALIDITY -->
+
+      <div class="section">
+
+        <div class="section-title">
+          Quotation Validity
+        </div>
+
+        <p>
+          This quotation is valid until
+          <strong id="validUntil"></strong>.
+          Availability remains subject to confirmation until the booking
+          has been accepted and payment requirements have been completed.
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <div class="quote-footer">
+
+      <strong>RSAinn Holiday Getaways</strong><br>
+
+      Driftsands 108 – Uvongo, KwaZulu-Natal<br>
+
+      Thank you for considering RSAinn for your stay.
+      We look forward to welcoming you.
+
+    </div>
+
+  </div>
+
+</div>
+
+</main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const SUPABASE_URL =
+"https://xhxwjaobubxbretiqwsr.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+"sb_publishable_dN3KP37RRjRY-_0SFCYPkA_lsszaNoH";
+
+const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+
+const params =
+  new URLSearchParams(window.location.search);
+
+const quoteId =
+  params.get("id");
+
+
+let currentQuote = null;
+
+
+function money(value) {
+
+  return "R" +
+    Number(value || 0).toLocaleString(
+      "en-ZA",
+      {
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+      }
+    );
+
+}
+
+
+function formatDate(value) {
+
+  if (!value) return "-";
+
+  const date =
+    new Date(value + "T00:00:00");
+
+  return date.toLocaleDateString(
+    "en-ZA",
+    {
+      day:"2-digit",
+      month:"long",
+      year:"numeric"
+    }
+  );
+
+}
+
+
+async function loadQuote() {
+
+  const loading =
+    document.getElementById("loading");
+
+  if (!quoteId) {
+
+    loading.className =
+      "loading error";
+
+    loading.textContent =
+      "No quotation was selected.";
+
+    return;
+  }
+
+
+  const { data, error } =
+    await supabaseClient
+      .from("quotes")
+      .select("*")
+      .eq("id", quoteId)
+      .single();
+
+
+  if (error) {
+
+    console.error(error);
+
+    loading.className =
+      "loading error";
+
+    loading.textContent =
+      "Unable to load quotation: " +
+      error.message;
+
+    return;
+  }
+
+
+  currentQuote = data;
+
+
+  document.getElementById(
+    "quoteNumber"
+  ).textContent =
+    data.quote_number || "-";
+
+
+  document.getElementById(
+    "quoteDate"
+  ).textContent =
+    formatDate(data.quote_date);
+
+
+  document.getElementById(
+    "quoteStatus"
+  ).textContent =
+    data.status || "draft";
+
+
+  document.getElementById(
+    "guestName"
+  ).textContent =
+    data.guest_name || "-";
+
+
+  document.getElementById(
+    "mobile"
+  ).textContent =
+    data.contact_number || "-";
+
+
+  document.getElementById(
+    "email"
+  ).textContent =
+    data.email || "-";
+
+
+  const totalGuests =
+    Number(data.adults || 0) +
+    Number(data.children || 0);
+
+
+  document.getElementById(
+    "guests"
+  ).textContent =
+    totalGuests;
+
+
+  document.getElementById(
+    "nights"
+  ).textContent =
+    data.number_of_nights || 0;
+
+
+  document.getElementById(
+    "checkIn"
+  ).textContent =
+    formatDate(data.check_in);
+
+
+  document.getElementById(
+    "checkOut"
+  ).textContent =
+    formatDate(data.check_out);
+
+
+  document.getElementById(
+    "accommodation"
+  ).textContent =
+    money(data.accommodation_total);
+
+
+  document.getElementById(
+    "adminFee"
+  ).textContent =
+    money(data.admin_fee);
+
+
+  document.getElementById(
+    "discount"
+  ).textContent =
+    "- " + money(data.discount_amount);
+
+
+  document.getElementById(
+    "totalDue"
+  ).textContent =
+    money(data.total_due);
+
+
+  document.getElementById(
+    "validUntil"
+  ).textContent =
+    formatDate(data.valid_until);
+
+
+  loading.style.display =
+    "none";
+
+  document.getElementById(
+    "quoteContent"
+  ).style.display =
+    "block";
+
+}
+
+
+/* BUTTONS */
+
+document.getElementById(
+  "pdfQuote"
+).addEventListener(
+  "click",
+  function () {
+
+    /*
+      Browser print is temporary.
+      We will replace this with the
+      final PDF generator.
+    */
+
+    window.print();
+
+  }
+);
+
+
+document.getElementById(
+  "editQuote"
+).addEventListener(
+  "click",
+  function () {
+
+    alert(
+      "Edit Quote will be connected next."
+    );
+
+  }
+);
+
+
+document.getElementById(
+  "sendQuote"
+).addEventListener(
+  "click",
+  function () {
+
+    alert(
+      "Send / Share will be connected after PDF generation."
+    );
+
+  }
+);
+
+
+document.getElementById(
+  "convertBooking"
+).addEventListener(
+  "click",
+  function () {
+
+    alert(
+      "Convert to Booking will be connected after quotation management is complete."
+    );
+
+  }
+);
+
+
+loadQuote();
+
+</script>
+
+</body>
+</html>
