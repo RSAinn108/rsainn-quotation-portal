@@ -285,78 +285,95 @@ button,
 
 }
 
-/* PRINT / FUTURE PDF */
+/* =========================================
+   RSAinn A4 QUOTATION / PDF
+   ========================================= */
 
-@media print {
-
-  body {
-    background:white;
-  }
-
-  header,
-  .action-bar {
-    display:none !important;
-  }
-
-  main {
-    margin:0;
-    padding:0;
-    max-width:none;
-  }
-
-  .quote {
-    box-shadow:none;
-    border-radius:0;
-  }
-
+@page {
+    size: A4 portrait;
+    margin: 0;
 }
-/* ========================================
-   PDF / PRINT VERSION
-======================================== */
 
 @media print {
 
-    @page {
-        size: A4;
-        margin: 10mm;
-    }
-
+    html,
     body {
-        background: white !important;
+        width: 210mm !important;
+        height: 297mm !important;
         margin: 0 !important;
         padding: 0 !important;
+        background: #ffffff !important;
     }
 
+    /* Hide portal controls */
+    header,
+    .action-bar,
     .toolbar,
     .top-actions,
-    .actions,
-    button {
+    .actions {
         display: none !important;
     }
 
-    .page,
-    .container,
     main {
-        width: 100% !important;
-        max-width: none !important;
+        width: 210mm !important;
+        max-width: 210mm !important;
         margin: 0 !important;
         padding: 0 !important;
     }
 
-    #quoteContainer {
-        width: 100% !important;
-        max-width: none !important;
+    #quoteContainer,
+    .quote {
+        width: 210mm !important;
+        max-width: 210mm !important;
+        min-height: 297mm !important;
         margin: 0 !important;
+        padding: 0 !important;
+
         box-shadow: none !important;
         border: none !important;
+        border-radius: 0 !important;
+
+        page-break-before: avoid !important;
+        page-break-after: avoid !important;
+        page-break-inside: avoid !important;
+
+        overflow: hidden !important;
     }
 
-    .quote {
-        box-shadow: none !important;
-        margin: 0 !important;
-        page-break-inside: avoid;
+    /* Keep RSAinn branding colours in PDF */
+    .quote-header {
+        background: #00563f !important;
+        color: #ffffff !important;
+        padding: 12mm 12mm 9mm !important;
     }
 
+    .quote-body {
+        padding: 8mm 12mm !important;
+    }
+
+    /* Slightly compact content for single A4 */
+    .quote-body h2,
+    .quote-body h3 {
+        margin-top: 5mm !important;
+        margin-bottom: 2mm !important;
+    }
+
+    .quote-body p {
+        margin-top: 1mm !important;
+        margin-bottom: 1mm !important;
+    }
+
+    /* Prevent individual sections splitting */
+    .status-row,
+    .detail-grid,
+    .summary,
+    .summary-row,
+    .quote-section {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    /* Preserve colours */
     * {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
