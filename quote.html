@@ -500,7 +500,6 @@ const { data, error } = await supabaseClient
     total_due: totalDue,
     status: "Draft",
     quote_date: new Date().toISOString().split("T")[0]
-  })
   });
 
 if (error) {
