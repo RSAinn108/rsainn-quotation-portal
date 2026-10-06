@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Bookings | RSAinn</title>
+
+<style>
+:root {
+    --green: #003b2f;
+    --green-dark: #00271f;
+    --gold: #d6a63c;
+    --gold-light: #efc45d;
+    --cream: #f7f3e8;
+    --white: #ffffff;
+    --text: #18201d;
+    --muted: #68746f;
+    --border: #e1ded4;
+    --danger: #b42318;
+    --success: #067647;
+    --shadow: 0 8px 20px rgba(0,0,0,.08);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--text);
+    background: #f5f6f4;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.topbar {
+    min-height: 96px;
+    background: #ffffff;
+    color: #111111;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 28px;
+    border-bottom: 3px solid var(--gold);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+}
+
+.brand-logo {
+    display: block;
+    width: 240px;
+    height: auto;
+    object-fit: contain;
+}
+
+.user-area {
+    text-align: right;
+    font-size: 13px;
+    color: #111111;
+}
+
+.user-area strong {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 3px;
+}
+
+/* =========================
+   NAVIGATION
+========================= */
+
+.nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 12px;
+    padding: 0 16px;
+    overflow-x: auto;
+}
+
+.nav a {
+    color: #34413d;
+    text-decoration: none;
+    font-weight: 700;
+    padding: 18px 22px;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+}
+
+.nav a:hover {
+    color: var(--green);
+}
+
+.nav a.active {
+    color: var(--green);
+    border-bottom-color: var(--gold);
+}
+
+/* =========================
+   PAGE
+========================= */
+
+.container {
+    max-width: 1500px;
+    margin: 28px auto;
+    padding: 0 24px 50px;
+}
+
+.page-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.page-heading h1 {
+    margin: 0;
+    font-family: Georgia, serif;
+    color: var(--green);
+    font-size: 32px;
+}
+
+.page-heading p {
+    margin: 7px 0 0;
+    color: var(--muted);
+}
+
+/* =========================
+   SUMMARY CARDS
+========================= */
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 25px;
+}
+
+.summary-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+}
+
+.summary-label {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+}
+
+.summary-value {
+    margin-top: 10px;
+    font-family: Georgia, serif;
+    font-size: 29px;
+    font-weight: bold;
+    color: var(--green);
+}
+
+/* =========================
+   TOOLBAR
+========================= */
+
+.toolbar {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px 12px 0 0;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    align-items: center;
+}
+
+.search-box {
+    width: 100%;
+    max-width: 420px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 11px 13px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: var(--green);
+}
+
+.filter-select {
+    padding: 11px 13px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: white;
+    min-width: 170px;
+}
+
+/* =========================
+   TABLE
+========================= */
+
+.table-wrap {
+    background: white;
+    border: 1px solid var(--border);
+    border-top: 0;
+    border-radius: 0 0 12px 12px;
+    overflow-x: auto;
+    box-shadow: var(--shadow);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1050px;
+}
+
+thead {
+    background: var(--green);
+    color: white;
+}
+
+th {
+    padding: 14px 15px;
+    text-align: left;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+}
+
+td {
+    padding: 15px;
+    border-bottom: 1px solid #eceae3;
+    font-size: 14px;
+}
+
+tbody tr:hover {
+    background: #faf9f4;
+}
+
+.booking-number {
+    font-weight: 700;
+    color: var(--green);
+}
+
+.amount {
+    font-weight: 700;
+}
+
+/* =========================
+   STATUS
+========================= */
+
+.status {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: capitalize;
+}
+
+.status-confirmed,
+.status-accepted,
+.status-booked {
+    background: #e6f6ee;
+    color: var(--success);
+}
+
+.status-pending {
+    background: #fff5d6;
+    color: #946200;
+}
+
+.status-cancelled,
+.status-canceled {
+    background: #feeceb;
+    color: var(--danger);
+}
+
+.status-other {
+    background: #f0f1ef;
+    color: #4c5753;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.action-btn {
+    border: 1px solid var(--green);
+    background: white;
+    color: var(--green);
+    padding: 8px 13px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.action-btn:hover {
+    background: var(--green);
+    color: white;
+}
+
+/* =========================
+   MESSAGES
+========================= */
+
+.message {
+    background: white;
+    border: 1px solid var(--border);
+    padding: 28px;
+    text-align: center;
+    color: var(--muted);
+}
+
+.message.error {
+    color: var(--danger);
+    background: #fff5f4;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 950px) {
+    .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .topbar {
+        padding: 10px 16px;
+    }
+
+    .brand-logo {
+        width: 190px;
+    }
+}
+
+@media (max-width: 650px) {
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-box {
+        max-width: none;
+    }
+
+    .page-heading {
+        display: block;
+    }
+
+    .user-area {
+        display: none;
+    }
+
+    .brand-logo {
+        width: 180px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+
+    <div class="brand">
+        <img
+            src="rsainn-logo.png"
+            alt="RSAinn Holiday Getaways"
+            class="brand-logo"
+        >
+    </div>
+
+    <div class="user-area">
+        <strong>RSAinn Holiday Getaways</strong>
+        Driftsands 108
+    </div>
+
+</header>
+
+<nav class="nav">
+    <a href="index.html">Dashboard</a>
+    <a href="calendar.html">Calendar & Rates</a>
+    <a href="quote.html">Create Quote</a>
+    <a href="quotes.html">Quotes</a>
+    <a href="bookings.html" class="active">Bookings</a>
+    <a href="#">Settings</a>
+</nav>
+
+<main class="container">
+
+    <div class="page-heading">
+        <div>
+            <h1>Bookings</h1>
+            <p>Manage confirmed RSAinn reservations.</p>
+        </div>
+    </div>
+
+    <section class="summary-grid">
+
+        <div class="summary-card">
+            <div class="summary-label">Total Bookings</div>
+            <div class="summary-value" id="totalBookings">0</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-label">Upcoming Stays</div>
+            <div class="summary-value" id="upcomingBookings">0</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-label">Total Booking Value</div>
+            <div class="summary-value" id="bookingValue">R0.00</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-label">Booked Nights</div>
+            <div class="summary-value" id="bookedNights">0</div>
+        </div>
+
+    </section>
+
+    <section>
+
+        <div class="toolbar">
+
+            <div class="search-box">
+                <input
+                    type="text"
+                    id="bookingSearch"
+                    placeholder="Search booking number or guest..."
+                >
+            </div>
+
+            <select id="statusFilter" class="filter-select">
+                <option value="all">All bookings</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="pending">Pending</option>
+                <option value="cancelled">Cancelled</option>
+            </select>
+
+        </div>
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Booking</th>
+                        <th>Guest</th>
+                        <th>Check-in</th>
+                        <th>Check-out</th>
+                        <th>Nights</th>
+                        <th>Guests</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody id="bookingBody"></tbody>
+
+            </table>
+
+            <div id="bookingMessage" class="message">
+                Loading bookings...
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+/* =========================
+   SUPABASE
+========================= */
+
+/*
+IMPORTANT:
+
+Use the SAME Supabase URL and anon key that your
+other RSAinn portal pages currently use.
+
+Copy these two values from one of your working pages
+such as quotes.html or calendar.html.
+*/
+
+const SUPABASE_URL =
+    "https://bxjenexozkxqroidjvdw.supabase.co";
+
+/*
+PASTE YOUR EXISTING ANON KEY BELOW.
+Do NOT use your service_role key.
+*/
+
+const SUPABASE_ANON_KEY =
+    "PASTE_YOUR_EXISTING_ANON_KEY_HERE";
+
+const supabaseClient =
+    supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+    );
+
+const PROPERTY_ID = 1;
+
+let allBookings = [];
+
+
+/* =========================
+   HELPERS
+========================= */
+
+function money(value) {
+
+    return "R" +
+        Number(value || 0).toLocaleString(
+            "en-ZA",
+            {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        );
+}
+
+
+function formatDate(value) {
+
+    if (!value) return "-";
+
+    const parts = value.split("-");
+
+    if (parts.length !== 3) {
+        return value;
+    }
+
+    const date = new Date(
+        Number(parts[0]),
+        Number(parts[1]) - 1,
+        Number(parts[2])
+    );
+
+    return date.toLocaleDateString(
+        "en-ZA",
+        {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        }
+    );
+}
+
+
+function statusClass(status) {
+
+    const value =
+        String(status || "").toLowerCase();
+
+    if (
+        value === "confirmed" ||
+        value === "accepted" ||
+        value === "booked"
+    ) {
+        return "status-confirmed";
+    }
+
+    if (value === "pending") {
+        return "status-pending";
+    }
+
+    if (
+        value === "cancelled" ||
+        value === "canceled"
+    ) {
+        return "status-cancelled";
+    }
+
+    return "status-other";
+}
+
+
+/* =========================
+   LOAD BOOKINGS
+========================= */
+
+async function loadBookings() {
+
+    const message =
+        document.getElementById("bookingMessage");
+
+    message.style.display = "block";
+    message.className = "message";
+    message.textContent = "Loading bookings...";
+
+    const { data, error } =
+        await supabaseClient
+            .from("bookings")
+            .select("*")
+            .eq("property_id", PROPERTY_ID)
+            .order(
+                "check_in",
+                { ascending: true }
+            );
+
+    if (error) {
+
+        console.error(
+            "Booking loading error:",
+            error
+        );
+
+        message.className = "message error";
+
+        message.textContent =
+            "Unable to load bookings: " +
+            error.message;
+
+        allBookings = [];
+
+        updateSummary();
+
+        return;
+    }
+
+    allBookings = data || [];
+
+    updateSummary();
+    applyFilters();
+}
+
+
+/* =========================
+   SUMMARY
+========================= */
+
+function updateSummary() {
+
+    const today = new Date();
+
+    today.setHours(0, 0, 0, 0);
+
+    const activeBookings =
+        allBookings.filter(booking => {
+
+            const status =
+                String(
+                    booking.booking_status || ""
+                ).toLowerCase();
+
+            return (
+                status !== "cancelled" &&
+                status !== "canceled"
+            );
+        });
+
+
+    const upcoming =
+        activeBookings.filter(booking => {
+
+            if (!booking.check_in) {
+                return false;
+            }
+
+            const checkIn =
+                new Date(
+                    booking.check_in +
+                    "T00:00:00"
+                );
+
+            return checkIn >= today;
+        });
+
+
+    const totalValue =
+        activeBookings.reduce(
+            (total, booking) =>
+                total +
+                Number(
+                    booking.total_due ??
+                    booking.total_amount ??
+                    0
+                ),
+            0
+        );
+
+
+    const nights =
+        activeBookings.reduce(
+            (total, booking) =>
+                total +
+                Number(
+                    booking.number_of_nights || 0
+                ),
+            0
+        );
+
+
+    document.getElementById(
+        "totalBookings"
+    ).textContent =
+        allBookings.length;
+
+
+    document.getElementById(
+        "upcomingBookings"
+    ).textContent =
+        upcoming.length;
+
+
+    document.getElementById(
+        "bookingValue"
+    ).textContent =
+        money(totalValue);
+
+
+    document.getElementById(
+        "bookedNights"
+    ).textContent =
+        nights;
+}
+
+
+/* =========================
+   FILTER BOOKINGS
+========================= */
+
+function applyFilters() {
+
+    const search =
+        document
+            .getElementById("bookingSearch")
+            .value
+            .trim()
+            .toLowerCase();
+
+
+    const filter =
+        document
+            .getElementById("statusFilter")
+            .value
+            .toLowerCase();
+
+
+    const filtered =
+        allBookings.filter(booking => {
+
+            const bookingNumber =
+                String(
+                    booking.booking_number || ""
+                ).toLowerCase();
+
+            const guest =
+                String(
+                    booking.guest_name || ""
+                ).toLowerCase();
+
+            const status =
+                String(
+                    booking.booking_status || ""
+                ).toLowerCase();
+
+
+            const matchesSearch =
+                !search ||
+                bookingNumber.includes(search) ||
+                guest.includes(search);
+
+
+            let matchesStatus = true;
+
+            if (filter !== "all") {
+
+                if (filter === "confirmed") {
+
+                    matchesStatus =
+                        status === "confirmed" ||
+                        status === "accepted" ||
+                        status === "booked";
+
+                } else if (
+                    filter === "cancelled"
+                ) {
+
+                    matchesStatus =
+                        status === "cancelled" ||
+                        status === "canceled";
+
+                } else {
+
+                    matchesStatus =
+                        status === filter;
+                }
+            }
+
+
+            return (
+                matchesSearch &&
+                matchesStatus
+            );
+        });
+
+
+    displayBookings(filtered);
+}
+
+
+/* =========================
+   DISPLAY BOOKINGS
+========================= */
+
+function displayBookings(bookings) {
+
+    const body =
+        document.getElementById(
+            "bookingBody"
+        );
+
+    const message =
+        document.getElementById(
+            "bookingMessage"
+        );
+
+    body.innerHTML = "";
+
+
+    if (!bookings.length) {
+
+        message.style.display = "block";
+        message.className = "message";
+        message.textContent =
+            "No bookings found.";
+
+        return;
+    }
+
+
+    message.style.display = "none";
+
+
+    bookings.forEach(booking => {
+
+        const row =
+            document.createElement("tr");
+
+
+        const guestCount =
+            Number(booking.adults || 0) +
+            Number(booking.children || 0);
+
+
+        const total =
+            booking.total_due ??
+            booking.total_amount ??
+            0;
+
+
+        const status =
+            booking.booking_status ||
+            "confirmed";
+
+
+        row.innerHTML = `
+            <td class="booking-number">
+                ${booking.booking_number || "-"}
+            </td>
+
+            <td>
+                ${booking.guest_name || "-"}
+            </td>
+
+            <td>
+                ${formatDate(booking.check_in)}
+            </td>
+
+            <td>
+                ${formatDate(booking.check_out)}
+            </td>
+
+            <td>
+                ${booking.number_of_nights || 0}
+            </td>
+
+            <td>
+                ${guestCount}
+            </td>
+
+            <td class="amount">
+                ${money(total)}
+            </td>
+
+            <td>
+                <span class="status ${statusClass(status)}">
+                    ${status}
+                </span>
+            </td>
+
+            <td>
+                <button
+                    class="action-btn"
+                    onclick="viewBooking(${booking.id})"
+                >
+                    View
+                </button>
+            </td>
+        `;
+
+
+        body.appendChild(row);
+    });
+}
+
+
+/* =========================
+   VIEW BOOKING
+========================= */
+
+function viewBooking(id) {
+
+    /*
+    The individual booking page will be
+    our next step.
+
+    For now this confirms that the correct
+    booking ID is being selected.
+    */
+
+    alert(
+        "Booking selected: " + id
+    );
+}
+
+
+/* =========================
+   EVENTS
+========================= */
+
+document
+    .getElementById("bookingSearch")
+    .addEventListener(
+        "input",
+        applyFilters
+    );
+
+
+document
+    .getElementById("statusFilter")
+    .addEventListener(
+        "change",
+        applyFilters
+    );
+
+
+/* =========================
+   START PAGE
+========================= */
+
+loadBookings();
+
+</script>
+
+</body>
+</html>
