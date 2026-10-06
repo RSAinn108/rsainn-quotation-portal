@@ -838,18 +838,79 @@ document.getElementById("editQuote").addEventListener("click", function () {
 });
 
 
-document.getElementById(
-  "sendQuote"
-).addEventListener(
-  "click",
-  function () {
+document.getElementById("sendQuote").addEventListener("click", async function () {
 
-    alert(
-      "Send / Share will be connected after PDF generation."
-    );
+    if (!currentQuote) {
+        alert("Quotation details are still loading. Please try again.");
+        return;
+    }
 
-  }
-);
+    const quoteNumber = currentQuote.quote_number || "RSAinn Quotation";
+    const guestName = currentQuote.guest_name || "Guest";
+
+    const shareUrl = window.location.href;
+
+    const shareText =
+`RSAinn Holiday Getaways
+
+Dear ${guestName},
+
+Please find your accommodation quotation ${quoteNumber} for Driftsands 108 – Uvongo.
+
+You can view your quotation here:
+${shareUrl}
+
+We look forward to welcoming you.
+
+RSAinn Holiday Getaways`;
+
+    // Use native sharing on supported phones/tablets/computers
+    if (navigator.share) {
+
+        try {
+
+            await navigator.share({
+                title: `RSAinn Quotation ${quoteNumber}`,
+                text: shareText,
+                url: shareUrl
+            });
+
+            console.log("Quotation shared successfully.");
+
+        } catch (error) {
+
+            if (error.name !== "AbortError") {
+                console.error("Share failed:", error);
+                alert("The quotation could not be shared.");
+            }
+
+        }
+
+    } else {
+
+        // Fallback for browsers without native sharing
+        try {
+
+            await navigator.clipboard.writeText(shareText);
+
+            alert(
+                "Quotation sharing message copied to clipboard.\n\n" +
+                "You can now paste it into WhatsApp, email or another messaging app."
+            );
+
+        } catch (error) {
+
+            console.error("Clipboard failed:", error);
+
+            alert(
+                "Your browser does not support automatic sharing.\n\n" +
+                "Please copy this quotation link:\n" +
+                shareUrl
+            );
+        }
+    }
+
+});
 
 
 document.getElementById("convertBooking").addEventListener("click", async function () {
