@@ -852,18 +852,101 @@ document.getElementById(
 );
 
 
-document.getElementById(
-  "convertBooking"
-).addEventListener(
-  "click",
-  function () {
+document.getElementById("convertBooking").addEventListener("click", async function () {
 
-    alert(
-      "Convert to Booking will be connected after quotation management is complete."
+    if (!currentQuote) {
+        alert("Quotation has not finished loading.");
+        return;
+    }
+
+    if (currentQuote.status === "accepted") {
+        alert("This quotation has already been converted to a booking.");
+        return;
+    }
+
+    const confirmed = confirm(
+        "Convert quotation " +
+        currentQuote.quote_number +
+        " to a confirmed booking?"
     );
 
-  }
-);
+    if (!confirmed) return;
+
+    const button = document.getElementById("convertBooking");
+    button.disabled = true;
+    button.textContent = "Converting...";
+
+    try {
+
+        const bookingNumber =
+            "RSA-BKG-" +
+            new Date().getFullYear() +
+            "-" +
+            Math.floor(100000 + Math.random() * 900000);
+
+        const { data: booking, error: bookingError } =
+            await supabaseClient
+                .from("bookings")
+                .insert({
+                    booking_number: bookingNumber,
+                    quote_id: currentQuote.id,
+                    property_id: currentQuote.property_id,
+                    guest_name: currentQuote.guest_name,
+                    contact_number: currentQuote.contact_number,
+                    email: currentQuote.email,
+                    adults: currentQuote.adults,
+                    children: currentQuote.children || 0,
+                    check_in: currentQuote.check_in,
+                    check_out: currentQuote.check_out,
+                    number_of_nights: currentQuote.number_of_nights,
+                    accommodation_total: currentQuote.accommodation_total,
+                    discount_amount: currentQuote.discount_amount || 0,
+                    admin_fee: currentQuote.admin_fee || 0,
+                    total_due: currentQuote.total_due,
+                    status: "confirmed"
+                })
+                .select()
+                .single();
+
+        if (bookingError) {
+            throw bookingError;
+        }
+
+        const { error: quoteError } =
+            await supabaseClient
+                .from("quotes")
+                .update({
+                    status: "accepted",
+                    updated_at: new Date().toISOString()
+                })
+                .eq("id", currentQuote.id);
+
+        if (quoteError) {
+            throw quoteError;
+        }
+
+        alert(
+            "Booking created successfully!\n\n" +
+            "Booking Number: " + booking.booking_number + "\n" +
+            "Guest: " + booking.guest_name
+        );
+
+        window.location.reload();
+
+    } catch (error) {
+
+        console.error("Booking conversion error:", error);
+
+        alert(
+            "The quotation could not be converted to a booking.\n\n" +
+            error.message
+        );
+
+        button.disabled = false;
+        button.textContent = "Convert to Booking";
+    }
+
+});
 
 
 loadQuote();
