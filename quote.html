@@ -492,6 +492,7 @@ saveQuoteButton.addEventListener("click", async function () {
     const { data, error } = await supabaseClient
       .from("quotes")
       .insert({
+        property_id: 1,
         quote_number: quoteNumber,
         guest_name: guestName,
         contact_number: guestPhone,
