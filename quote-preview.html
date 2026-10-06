@@ -310,7 +310,58 @@ button,
   }
 
 }
+/* ========================================
+   PDF / PRINT VERSION
+======================================== */
 
+@media print {
+
+    @page {
+        size: A4;
+        margin: 10mm;
+    }
+
+    body {
+        background: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .toolbar,
+    .top-actions,
+    .actions,
+    button {
+        display: none !important;
+    }
+
+    .page,
+    .container,
+    main {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    #quoteContainer {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    .quote {
+        box-shadow: none !important;
+        margin: 0 !important;
+        page-break-inside: avoid;
+    }
+
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
 </style>
 </head>
 
@@ -817,7 +868,10 @@ document.getElementById(
 
 
 loadQuote();
-
+// DOWNLOAD / SAVE QUOTATION AS PDF
+document.getElementById("pdfQuote").addEventListener("click", function () {
+    window.print();
+});
 </script>
 
 </body>
