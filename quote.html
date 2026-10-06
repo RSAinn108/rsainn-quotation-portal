@@ -362,9 +362,9 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
+
 <script>
-  const SUPABASE_URL = "https://xhxwjaobubxbretiqwsr.supabase.co";
+const SUPABASE_URL = "https://xhxwjaobubxbretiqwsr.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_dN3KP37RRjRY-_0SFCYPkA_lsszaNoH";
 
 const supabaseClient = supabase.createClient(
@@ -374,168 +374,181 @@ const supabaseClient = supabase.createClient(
 
 console.log("RSAinn Quotation Portal connected to Supabase.");
 
-  const checkIn = document.getElementById("checkIn");
-  const checkOut = document.getElementById("checkOut");
-  const nightlyRate = document.getElementById("nightlyRate");
-  const extras = document.getElementById("extras");
-  const discount = document.getElementById("discount");
+const checkIn = document.getElementById("checkIn");
+const checkOut = document.getElementById("checkOut");
+const nightlyRate = document.getElementById("nightlyRate");
+const extras = document.getElementById("extras");
+const discount = document.getElementById("discount");
+const saveQuoteButton = document.getElementById("saveQuote");
 
-  function money(value) {
-    return "R" + Number(value).toLocaleString("en-ZA", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
-  }
-
-  function calculateQuote() {
-
-    let nights = 0;
-
-    if (checkIn.value && checkOut.value) {
-
-      const start = new Date(checkIn.value + "T00:00:00");
-      const end = new Date(checkOut.value + "T00:00:00");
-
-      const difference = end - start;
-
-      nights = Math.max(
-        0,
-        Math.round(difference / (1000 * 60 * 60 * 24))
-      );
-    }
-
-    const rate = Number(nightlyRate.value) || 0;
-    const extraAmount = Number(extras.value) || 0;
-    const discountAmount = Number(discount.value) || 0;
-
-    const accommodation = nights * rate;
-
-    const total = Math.max(
-      0,
-      accommodation + extraAmount - discountAmount
-    );
-
-    document.getElementById("nightCount").textContent = nights;
-
-    document.getElementById("accommodationTotal").textContent =
-      money(accommodation);
-
-    document.getElementById("extrasTotal").textContent =
-      money(extraAmount);
-
-    document.getElementById("discountTotal").textContent =
-      "- " + money(discountAmount);
-
-    document.getElementById("grandTotal").textContent =
-      money(total);
-  }
-
-  checkIn.addEventListener("change", calculateQuote);
-  checkOut.addEventListener("change", calculateQuote);
-  nightlyRate.addEventListener("input", calculateQuote);
-  extras.addEventListener("input", calculateQuote);
-  discount.addEventListener("input", calculateQuote);
-
- document.getElementById("saveQuote").addEventListener("click", async function () {
-   const numberOfNights = Number(
-  document.getElementById("nightCount").textContent
-) || 0;
-
-const rate = Number(nightlyRate.value) || 0;
-const extraAmount = Number(extras.value) || 0;
-const discountAmount = Number(discount.value) || 0;
-
-const accommodationTotal = numberOfNights * rate;
-
-const totalDue = Math.max(
-  0,
-  accommodationTotal + extraAmount - discountAmount
-);
-
-    const guestName =
-      document.getElementById("guestName").value.trim();
-
-    if (!guestName) {
-      alert("Please enter the guest's name.");
-      return;
-    }
-
-    if (!checkIn.value || !checkOut.value) {
-      alert("Please select the check-in and check-out dates.");
-      return;
-    }
-
-    if (new Date(checkOut.value) <= new Date(checkIn.value)) {
-      alert("Check-out must be after check-in.");
-      return;
-    }
-
-   const start = new Date(checkIn.value + "T00:00:00");
-const end = new Date(checkOut.value + "T00:00:00");
-
-const numberOfNights = Math.round(
-  (end - start) / (1000 * 60 * 60 * 24)
-);
-
-const rate = Number(nightlyRate.value) || 0;
-const accommodationTotal = numberOfNights * rate;
-const discountAmount = Number(discount.value) || 0;
-const extraAmount = Number(extras.value) || 0;
-
-const totalDue = Math.max(
-  0,
-  accommodationTotal + extraAmount - discountAmount
-);
-
-const quoteNumber =
-  "RSA-" +
-  new Date().getFullYear() +
-  "-" +
-  Date.now().toString().slice(-6);
-
-const { data, error } = await supabaseClient
-  .from("quotes")
-  .insert({
-    quote_number: quoteNumber,
-    guest_name: guestName,
-    contact_number:
-      document.getElementById("mobile").value.trim(),
-    email:
-      document.getElementById("email").value.trim(),
-    adults:
-      Number(document.getElementById("guests").value) || 1,
-    children: 0,
-    check_in: checkIn.value,
-    check_out: checkOut.value,
-    number_of_nights: numberOfNights,
-    accommodation_total: accommodationTotal,
-    discount_amount: discountAmount,
-    admin_fee: extraAmount,
-    total_due: totalDue,
-    status: "Draft",
-    quote_date: new Date().toISOString().split("T")[0]
+function money(value) {
+  return "R" + Number(value).toLocaleString("en-ZA", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
   });
-
-if (error) {
-  console.error("Supabase error:", error);
-  alert("Quote could not be saved: " + error.message);
-  return;
 }
 
-alert(
-  "Quote " +
-    quoteNumber +
-    " saved successfully for " +
-    guestName +
-    "."
-);
+function getQuoteValues() {
+  let numberOfNights = 0;
 
-console.log("Saved quotation:", data);
+  if (checkIn.value && checkOut.value) {
+    const start = new Date(checkIn.value + "T00:00:00");
+    const end = new Date(checkOut.value + "T00:00:00");
+
+    numberOfNights = Math.max(
+      0,
+      Math.round((end - start) / (1000 * 60 * 60 * 24))
+    );
+  }
+
+  const rate = Number(nightlyRate.value) || 0;
+  const extraAmount = Number(extras.value) || 0;
+  const discountAmount = Number(discount.value) || 0;
+
+  const accommodationTotal = numberOfNights * rate;
+
+  const totalDue = Math.max(
+    0,
+    accommodationTotal + extraAmount - discountAmount
+  );
+
+  return {
+    numberOfNights,
+    rate,
+    extraAmount,
+    discountAmount,
+    accommodationTotal,
+    totalDue
+  };
+}
+
+function calculateQuote() {
+  const values = getQuoteValues();
+
+  document.getElementById("nightCount").textContent =
+    values.numberOfNights;
+
+  document.getElementById("accommodationTotal").textContent =
+    money(values.accommodationTotal);
+
+  document.getElementById("extrasTotal").textContent =
+    money(values.extraAmount);
+
+  document.getElementById("discountTotal").textContent =
+    "- " + money(values.discountAmount);
+
+  document.getElementById("grandTotal").textContent =
+    money(values.totalDue);
+}
+
+checkIn.addEventListener("change", calculateQuote);
+checkOut.addEventListener("change", calculateQuote);
+nightlyRate.addEventListener("input", calculateQuote);
+extras.addEventListener("input", calculateQuote);
+discount.addEventListener("input", calculateQuote);
+
+saveQuoteButton.addEventListener("click", async function () {
+
+  const guestName =
+    document.getElementById("guestName").value.trim();
+
+  const guestPhone =
+    document.getElementById("guestPhone").value.trim();
+
+  const guestEmail =
+    document.getElementById("guestEmail").value.trim();
+
+  const guests =
+    Number(document.getElementById("guests").value) || 1;
+
+  if (!guestName) {
+    alert("Please enter the guest's name.");
+    return;
+  }
+
+  if (!checkIn.value || !checkOut.value) {
+    alert("Please select the check-in and check-out dates.");
+    return;
+  }
+
+  if (new Date(checkOut.value) <= new Date(checkIn.value)) {
+    alert("Check-out must be after check-in.");
+    return;
+  }
+
+  const values = getQuoteValues();
+
+  const quoteNumber =
+    "RSA-" +
+    new Date().getFullYear() +
+    "-" +
+    Date.now().toString().slice(-6);
+
+  saveQuoteButton.disabled = true;
+  saveQuoteButton.textContent = "Saving...";
+
+  try {
+
+    const { data, error } = await supabaseClient
+      .from("quotes")
+      .insert({
+        quote_number: quoteNumber,
+        guest_name: guestName,
+        contact_number: guestPhone,
+        email: guestEmail,
+        adults: guests,
+        children: 0,
+        check_in: checkIn.value,
+        check_out: checkOut.value,
+        number_of_nights: values.numberOfNights,
+        accommodation_total: values.accommodationTotal,
+        discount_amount: values.discountAmount,
+        admin_fee: values.extraAmount,
+        total_due: values.totalDue,
+        status: "Draft",
+        quote_date: new Date().toISOString().split("T")[0]
+      })
+      .select();
+
+    if (error) {
+      console.error("Supabase error:", error);
+
+      alert(
+        "Quote could not be saved.\n\n" +
+        error.message
+      );
+
+      return;
+    }
+
+    console.log("Saved quotation:", data);
+
+    alert(
+      "Quote " +
+      quoteNumber +
+      " saved successfully for " +
+      guestName +
+      "."
+    );
+
+  } catch (error) {
+
+    console.error("Unexpected error:", error);
+
+    alert(
+      "Unexpected error while saving quote:\n\n" +
+      error.message
+    );
+
+  } finally {
+
+    saveQuoteButton.disabled = false;
+    saveQuoteButton.textContent = "Save Quote";
+
+  }
 });
 
 calculateQuote();
-
 </script>
-
 </body>
 </html>
