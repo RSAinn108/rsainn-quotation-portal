@@ -1107,6 +1107,28 @@ document.getElementById("convertBooking").addEventListener("click", async functi
     );
 
     if (!confirmed) return;
+  const bookingSource = prompt(
+    "Select booking source:\n\n" +
+    "1 = Private\n" +
+    "2 = Booking.com\n" +
+    "3 = LekkeSlaap\n" +
+    "4 = Airbnb\n\n" +
+    "Enter 1, 2, 3 or 4:"
+);
+
+const bookingSources = {
+    "1": "Private",
+    "2": "Booking.com",
+    "3": "LekkeSlaap",
+    "4": "Airbnb"
+};
+
+if (!bookingSources[bookingSource]) {
+    alert("Please select a valid booking source.");
+    return;
+}
+
+const selectedBookingSource = bookingSources[bookingSource];
 
     const button = document.getElementById("convertBooking");
     button.disabled = true;
@@ -1127,6 +1149,7 @@ document.getElementById("convertBooking").addEventListener("click", async functi
     booking_number: bookingNumber,
     quote_id: currentQuote.id,
     property_id: currentQuote.property_id,
+    booking_source: selectedBookingSource,
     guest_name: currentQuote.guest_name,
     contact_number: currentQuote.contact_number,
     adults: currentQuote.adults,
