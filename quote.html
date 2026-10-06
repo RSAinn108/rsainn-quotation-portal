@@ -409,19 +409,19 @@ async function loadQuoteForEditing() {
     return;
   }
 
-  // Guest details
-  document.getElementById("guestName").value = quote.guest_name || "";
-  document.getElementById("mobile").value = quote.contact_number || "";
-  document.getElementById("email").value = quote.email || "";
-  document.getElementById("guests").value = quote.adults || 1;
+ // Guest details
+document.getElementById("guestName").value = quote.guest_name || "";
+document.getElementById("guestPhone").value = quote.contact_number || "";
+document.getElementById("guestEmail").value = quote.email || "";
+document.getElementById("guests").value = quote.adults || 1;
 
-  // Stay details
-  document.getElementById("checkIn").value = quote.check_in || "";
-  document.getElementById("checkOut").value = quote.check_out || "";
+// Stay details
+document.getElementById("checkIn").value = quote.check_in || "";
+document.getElementById("checkOut").value = quote.check_out || "";
 
-  // Financial details
-  document.getElementById("extras").value = quote.admin_fee || 0;
-  document.getElementById("discount").value = quote.discount_amount || 0;
+// Financial details
+document.getElementById("extras").value = quote.admin_fee || 0;
+document.getElementById("discount").value = quote.discount_amount || 0;
 
   // Calculate nightly rate from saved accommodation total
   if (Number(quote.number_of_nights) > 0) {
