@@ -501,33 +501,16 @@ tbody tr:hover {
    SUPABASE
 ========================= */
 
-/*
-IMPORTANT:
-
-Use the SAME Supabase URL and anon key that your
-other RSAinn portal pages currently use.
-
-Copy these two values from one of your working pages
-such as quotes.html or calendar.html.
-*/
-
 const SUPABASE_URL =
-    "https://bxjenexozkxqroidjvdw.supabase.co";
+    "https://xbxwjaobubxhretjqwsr.supabase.co";
 
-/*
-PASTE YOUR EXISTING ANON KEY BELOW.
-Do NOT use your service_role key.
-*/
+const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_dN3KP37RRjRY-_0SFCYPkA_lsszaNoH";
 
-const SUPABASE_ANON_KEY =
-    "PASTE_YOUR_EXISTING_ANON_KEY_HERE";
-
-const supabaseClient =
-    supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY
-    );
-
+const supabaseClient = supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+);
 const PROPERTY_ID = 1;
 
 let allBookings = [];
