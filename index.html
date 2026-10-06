@@ -533,9 +533,9 @@
           Active Quotes
         </div>
 
-        <div class="stat-value">
-          0
-        </div>
+       <div class="stat-value" id="activeQuotesCount">
+    0
+</div>
 
         <div class="stat-sub">
           Quotes currently within validity
@@ -550,10 +550,9 @@
           Confirmed Bookings
         </div>
 
-        <div class="stat-value">
-          0
-        </div>
-
+       <div class="stat-value" id="confirmedBookingsCount">
+    0
+</div>
         <div class="stat-sub">
           Current direct bookings
         </div>
@@ -567,9 +566,9 @@
           Pending Payments
         </div>
 
-        <div class="stat-value">
-          R0.00
-        </div>
+ <div class="stat-value" id="pendingPaymentsAmount">
+    R0.00
+</div>  
 
         <div class="stat-sub">
           Outstanding booking balances
@@ -584,9 +583,9 @@
           Quotes This Month
         </div>
 
-        <div class="stat-value">
-          0
-        </div>
+      <div class="stat-value" id="quotesThisMonthCount">
+    0
+</div>
 
         <div class="stat-sub">
           Generated this month
@@ -745,6 +744,115 @@
   );
 
   console.log("RSAinn Quotation Portal connected to Supabase.");
+  // ==========================================
+// DASHBOARD LIVE STATISTICS
+// ==========================================
+
+async function loadDashboardStats() {
+    try {
+        const today = new Date().toISOString().split("T")[0];
+
+        // -----------------------------
+        // 1. ACTIVE QUOTES
+        // -----------------------------
+        const { data: activeQuotes, error: activeQuotesError } =
+            await supabaseClient
+                .from("quotes")
+                .select("id, valid_until, status")
+                .gte("valid_until", today)
+                .neq("status", "accepted");
+
+        if (activeQuotesError) throw activeQuotesError;
+
+        document.getElementById("activeQuotesCount").textContent =
+            activeQuotes?.length || 0;
+
+
+        // -----------------------------
+        // 2. CONFIRMED BOOKINGS
+        // -----------------------------
+        const { data: bookings, error: bookingsError } =
+            await supabaseClient
+                .from("bookings")
+                .select("*");
+
+        if (bookingsError) throw bookingsError;
+
+        const confirmedBookings = (bookings || []).filter(booking =>
+            String(booking.booking_status || "")
+                .toLowerCase() === "confirmed"
+        );
+
+        document.getElementById("confirmedBookingsCount").textContent =
+            confirmedBookings.length;
+
+
+        // -----------------------------
+        // 3. PENDING PAYMENTS
+        // -----------------------------
+        const pendingPayments = (bookings || []).reduce(
+            (total, booking) => {
+
+                if (
+                    String(booking.booking_status || "")
+                        .toLowerCase() !== "confirmed"
+                ) {
+                    return total;
+                }
+
+                return total + Number(booking.total_due || 0);
+
+            },
+            0
+        );
+
+        document.getElementById("pendingPaymentsAmount").textContent =
+            "R" +
+            pendingPayments.toLocaleString("en-ZA", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+
+        // -----------------------------
+        // 4. QUOTES THIS MONTH
+        // -----------------------------
+        const now = new Date();
+
+        const monthStart =
+            now.getFullYear() +
+            "-" +
+            String(now.getMonth() + 1).padStart(2, "0") +
+            "-01";
+
+        const { data: monthlyQuotes, error: monthlyQuotesError } =
+            await supabaseClient
+                .from("quotes")
+                .select("id, quote_date")
+                .gte("quote_date", monthStart);
+
+        if (monthlyQuotesError) throw monthlyQuotesError;
+
+        document.getElementById("quotesThisMonthCount").textContent =
+            monthlyQuotes?.length || 0;
+
+
+        console.log("Dashboard statistics loaded.");
+
+    } catch (error) {
+
+        console.error(
+            "Could not load dashboard statistics:",
+            error
+        );
+
+    }
+}
+
+
+// Load dashboard when page opens
+loadDashboardStats();
+  
 </script>
 </body>
 </html>
