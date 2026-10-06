@@ -506,7 +506,7 @@ saveQuoteButton.addEventListener("click", async function () {
         discount_amount: values.discountAmount,
         admin_fee: values.extraAmount,
         total_due: values.totalDue,
-        status: "Draft",
+        status: "draft",
         quote_date: new Date().toISOString().split("T")[0]
       })
       .select();
