@@ -159,8 +159,9 @@ body {
 /* =========================
    SUMMARY CARDS
 ========================= */
+
 .summary-section {
-    margin-bottom: 24px;
+    margin-bottom: 22px;
 }
 
 .summary-title {
@@ -170,35 +171,112 @@ body {
     margin-bottom: 10px;
     padding-left: 2px;
 }
+
 .summary-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 18px;
-    margin-bottom: 25px;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 0;
 }
 
 .summary-card {
     background: white;
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
+    border-radius: 10px;
+    padding: 14px 16px;
     box-shadow: var(--shadow);
+    min-width: 0;
 }
 
 .summary-label {
     color: var(--muted);
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: .4px;
+    letter-spacing: .3px;
+    margin-bottom: 8px;
+    white-space: nowrap;
 }
 
 .summary-value {
-    margin-top: 10px;
-    font-family: Georgia, serif;
-    font-size: 29px;
-    font-weight: bold;
     color: var(--green);
+    font-size: 23px;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+
+/* =========================
+   SUMMARY RESPONSIVE
+========================= */
+
+/* Tablet / smaller laptop */
+
+@media (max-width: 1100px) {
+
+    .summary-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+
+/* Mobile */
+
+@media (max-width: 700px) {
+
+    .page-heading {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+    }
+
+    .month-selector {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .month-selector input {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .summary-section {
+        margin-bottom: 18px;
+    }
+
+    .summary-title {
+        font-size: 15px;
+        margin-bottom: 8px;
+    }
+
+    .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .summary-card {
+        padding: 11px 12px;
+    }
+
+    .summary-label {
+        font-size: 9px;
+        margin-bottom: 6px;
+        white-space: normal;
+    }
+
+    .summary-value {
+        font-size: 19px;
+    }
+}
+
+
+/* Very small phones */
+
+@media (max-width: 360px) {
+
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* =========================
