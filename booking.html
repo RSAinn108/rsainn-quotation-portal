@@ -327,7 +327,43 @@ body {
     cursor: pointer;
     font-weight: 700;
 }
+.booking-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+}
 
+.edit-booking-btn {
+    border: 1px solid var(--green);
+    background: white;
+    color: var(--green);
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.edit-booking-btn:hover {
+    background: var(--green);
+    color: white;
+}
+
+.cancel-booking-btn {
+    border: 1px solid var(--danger);
+    background: white;
+    color: var(--danger);
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.cancel-booking-btn:hover {
+    background: var(--danger);
+    color: white;
+}
 /* PAYMENT HISTORY */
 
 .payment-table-wrap {
@@ -536,12 +572,31 @@ body {
                 </div>
             </div>
 
-            <span
-                id="bookingStatus"
-                class="status status-other"
-            >
-                -
-            </span>
+           <div class="booking-actions">
+
+    <button
+        class="edit-booking-btn"
+        onclick="openEditBookingModal()"
+    >
+        Edit Booking
+    </button>
+
+    <button
+        class="cancel-booking-btn"
+        id="cancelBookingButton"
+        onclick="cancelBooking()"
+    >
+        Cancel Booking
+    </button>
+
+    <span
+        id="bookingStatus"
+        class="status status-other"
+    >
+        -
+    </span>
+
+</div>
 
         </div>
 
@@ -1620,7 +1675,91 @@ async function savePayment() {
     );
 }
 
+/* =========================
+   CANCEL BOOKING
+========================= */
 
+async function cancelBooking() {
+
+    if (!currentBooking) {
+        alert("Booking has not finished loading.");
+        return;
+    }
+
+    const currentStatus =
+        String(
+            currentBooking.booking_status || ""
+        ).toLowerCase();
+
+    if (
+        currentStatus === "cancelled" ||
+        currentStatus === "canceled"
+    ) {
+        alert("This booking is already cancelled.");
+        return;
+    }
+
+    const confirmed = confirm(
+        "Are you sure you want to cancel booking " +
+        (currentBooking.booking_number || "") +
+        "?\n\n" +
+        "The booking and payment history will be kept for your records."
+    );
+
+    if (!confirmed) return;
+
+
+    const button =
+        document.getElementById(
+            "cancelBookingButton"
+        );
+
+    button.disabled = true;
+    button.textContent = "Cancelling...";
+
+
+    const { error } =
+        await supabaseClient
+            .from("bookings")
+            .update({
+                booking_status: "cancelled",
+                updated_at: new Date().toISOString()
+            })
+            .eq("id", currentBooking.id);
+
+
+    if (error) {
+
+        console.error(
+            "Booking cancellation error:",
+            error
+        );
+
+        button.disabled = false;
+        button.textContent = "Cancel Booking";
+
+        alert(
+            "Unable to cancel booking: " +
+            error.message
+        );
+
+        return;
+    }
+
+
+    currentBooking.booking_status =
+        "cancelled";
+
+    displayBooking();
+
+    button.disabled = true;
+    button.textContent =
+        "Booking Cancelled";
+
+    alert(
+        "Booking cancelled successfully."
+    );
+}
 /* =========================
    EVENTS
 ========================= */
