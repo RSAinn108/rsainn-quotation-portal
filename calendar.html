@@ -213,7 +213,27 @@ body{
   transition:.15s;
   user-select:none;
 }
+/* =========================
+   BOOKED DATES
+========================= */
 
+.day.booked {
+    background: #fff7f7;
+    border-color: #d9a6a6;
+}
+
+.booked-badge {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 3px 7px;
+    border-radius: 5px;
+    background: #8f2d2d;
+    color: white;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .4px;
+    line-height: 1.2;
+}
 .day:hover{
   border-color:var(--gold);
   transform:translateY(-1px);
@@ -686,7 +706,7 @@ currentDate = new Date(
 );
 
 let rates = {};
-
+let bookings = [];
 let selectionStart = null;
 let selectionEnd = null;
 
@@ -775,45 +795,126 @@ function getMonthBounds(){
 
 async function loadRates(){
 
-  const bounds = getMonthBounds();
+    const bounds = getMonthBounds();
 
-  const {data,error} =
-    await supabaseClient
-      .from("daily_rates")
-      .select("rate_date,nightly_rate")
-      .eq("property_id",PROPERTY_ID)
-      .gte("rate_date",bounds.first)
-      .lte("rate_date",bounds.last);
-  console.log("MONTH BOUNDS:", bounds);
-console.log("SUPABASE RATE DATA:", data);
-console.log("SUPABASE RATE ERROR:", error);
+    /* =========================
+       LOAD DAILY RATES
+    ========================= */
 
-  if(error){
+    const {
+        data: rateData,
+        error: rateError
+    } =
+        await supabaseClient
+            .from("daily_rates")
+            .select("rate_date, nightly_rate")
+            .eq("property_id", PROPERTY_ID)
+            .gte("rate_date", bounds.first)
+            .lte("rate_date", bounds.last);
 
-    console.error(error);
+    if(rateError){
 
-    showMessage(
-      "Could not load rates: " + error.message,
-      "error"
+        console.error(rateError);
+
+        showMessage(
+            "Could not load rates: " +
+            rateError.message,
+            "error"
+        );
+
+        rates = {};
+
+    }else{
+
+        rates = {};
+
+        (rateData || []).forEach(row => {
+
+            rates[row.rate_date] =
+                Number(row.nightly_rate);
+
+        });
+
+    }
+
+
+    /* =========================
+       LOAD ACTIVE BOOKINGS
+    ========================= */
+
+    const {
+        data: bookingData,
+        error: bookingError
+    } =
+        await supabaseClient
+            .from("bookings")
+            .select(
+                "id, check_in, check_out, booking_status"
+            )
+            .eq("property_id", PROPERTY_ID)
+            .lt("check_in", bounds.last)
+            .gt("check_out", bounds.first);
+
+
+    if(bookingError){
+
+        console.error(
+            "Could not load bookings:",
+            bookingError
+        );
+
+        bookings = [];
+
+    }else{
+
+        bookings =
+            (bookingData || []).filter(booking => {
+
+                const status =
+                    String(
+                        booking.booking_status || ""
+                    ).toLowerCase();
+
+                return (
+                    status !== "cancelled" &&
+                    status !== "canceled"
+                );
+
+            });
+
+    }
+
+
+    console.log(
+        "CALENDAR BOOKINGS:",
+        bookings
     );
 
-    rates = {};
-
-  }else{
-
-    rates = {};
-
-    data.forEach(row => {
-      rates[row.rate_date] =
-        Number(row.nightly_rate);
-    });
-
-  }
-
-  renderCalendar();
+    renderCalendar();
 }
 
+/* =========================
+   BOOKED NIGHT CHECK
+========================= */
 
+function isBookedNight(dateString){
+
+    return bookings.some(booking => {
+
+        if(
+            !booking.check_in ||
+            !booking.check_out
+        ){
+            return false;
+        }
+
+        return (
+            dateString >= booking.check_in &&
+            dateString < booking.check_out
+        );
+
+    });
+}
 /* =========================================
    RENDER CALENDAR
 ========================================= */
@@ -910,7 +1011,26 @@ function renderCalendar(){
       cell.classList.add("selected");
     }
 
+/* BOOKED NIGHT */
 
+const booked =
+    isBookedNight(dateString);
+
+if(booked){
+
+    cell.classList.add("booked");
+
+    const bookedBadge =
+        document.createElement("div");
+
+    bookedBadge.className =
+        "booked-badge";
+
+    bookedBadge.textContent =
+        "BOOKED";
+
+    cell.appendChild(bookedBadge);
+}
     /* DAY NUMBER */
 
     const number =
@@ -982,43 +1102,88 @@ function renderCalendar(){
 
 function selectDate(dateString){
 
-  hideMessage();
+    hideMessage();
 
-  if(!selectionStart){
+    /* First click */
+    if(!selectionStart){
 
-    selectionStart =
-      dateString;
+        selectionStart = dateString;
+        selectionEnd = null;
 
-    selectionEnd =
-      null;
+    /* Second click */
+    }else if(!selectionEnd){
 
-  }else if(!selectionEnd){
+        let newStart = selectionStart;
+        let newEnd = dateString;
 
-    if(dateString < selectionStart){
+        if(dateString < selectionStart){
 
-      selectionEnd =
-        selectionStart;
+            newStart = dateString;
+            newEnd = selectionStart;
+        }
 
-      selectionStart =
-        dateString;
+        /*
+         Check every date in the selected range.
 
+         A booked night blocks the range.
+
+         The final date is treated as the end of
+         the rate-selection range and may coincide
+         with a guest checkout date.
+        */
+
+        let current =
+            new Date(newStart + "T00:00:00");
+
+        const end =
+            new Date(newEnd + "T00:00:00");
+
+        let containsBookedNight = false;
+
+        while(current <= end){
+
+            const currentString =
+                dateToString(current);
+
+            if(isBookedNight(currentString)){
+
+                containsBookedNight = true;
+                break;
+            }
+
+            current.setDate(
+                current.getDate() + 1
+            );
+        }
+
+        if(containsBookedNight){
+
+            showMessage(
+                "This date range contains a booked night. Please select an available range.",
+                "error"
+            );
+
+            selectionStart = null;
+            selectionEnd = null;
+
+            updateSelectionDisplay();
+            renderCalendar();
+
+            return;
+        }
+
+        selectionStart = newStart;
+        selectionEnd = newEnd;
+
+    /* Start a new selection */
     }else{
 
-      selectionEnd =
-        dateString;
+        selectionStart = dateString;
+        selectionEnd = null;
     }
 
-  }else{
-
-    selectionStart =
-      dateString;
-
-    selectionEnd =
-      null;
-  }
-
-  updateSelectionDisplay();
-  renderCalendar();
+    updateSelectionDisplay();
+    renderCalendar();
 }
 
 
