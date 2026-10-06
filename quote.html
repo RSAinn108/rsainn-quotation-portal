@@ -437,6 +437,20 @@ console.log("RSAinn Quotation Portal connected to Supabase.");
   discount.addEventListener("input", calculateQuote);
 
  document.getElementById("saveQuote").addEventListener("click", async function () {
+   const numberOfNights = Number(
+  document.getElementById("nightCount").textContent
+) || 0;
+
+const rate = Number(nightlyRate.value) || 0;
+const extraAmount = Number(extras.value) || 0;
+const discountAmount = Number(discount.value) || 0;
+
+const accommodationTotal = numberOfNights * rate;
+
+const totalDue = Math.max(
+  0,
+  accommodationTotal + extraAmount - discountAmount
+);
 
     const guestName =
       document.getElementById("guestName").value.trim();
