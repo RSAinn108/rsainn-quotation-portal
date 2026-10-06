@@ -508,8 +508,7 @@ saveQuoteButton.addEventListener("click", async function () {
         total_due: values.totalDue,
         status: "draft",
         quote_date: new Date().toISOString().split("T")[0]
-      })
-      .select();
+      });
 
     if (error) {
       console.error("Supabase error:", error);
