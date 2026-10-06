@@ -825,18 +825,17 @@ document.getElementById(
 );
 
 
-document.getElementById(
-  "editQuote"
-).addEventListener(
-  "click",
-  function () {
+document.getElementById("editQuote").addEventListener("click", function () {
+  const params = new URLSearchParams(window.location.search);
+  const quoteId = params.get("id");
 
-    alert(
-      "Edit Quote will be connected next."
-    );
-
+  if (!quoteId) {
+    alert("Unable to edit quotation: Quote ID not found.");
+    return;
   }
-);
+
+  window.location.href = "quote.html?edit=" + encodeURIComponent(quoteId);
+});
 
 
 document.getElementById(
