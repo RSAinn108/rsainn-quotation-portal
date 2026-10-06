@@ -379,6 +379,79 @@ button,
         print-color-adjust: exact !important;
     }
 }
+ /* =========================================
+   RSAINN LOGO
+   ========================================= */
+
+.quote-brand {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.quote-logo {
+    display: block;
+    width: 190px;
+    max-width: 100%;
+    max-height: 105px;
+    object-fit: contain;
+    object-position: left center;
+}
+
+
+/* =========================================
+   BANKING DETAILS
+   ========================================= */
+
+.banking-details {
+    margin-top: 20px;
+    background: #ffffff;
+    border: 2px solid #d6a32a;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.banking-title {
+    background: #00563f;
+    color: #ffffff;
+    padding: 10px 16px;
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    border-bottom: 3px solid #d6a32a;
+}
+
+.banking-grid {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    padding: 10px 16px;
+}
+
+.bank-label,
+.bank-value {
+    padding: 6px 4px;
+    border-bottom: 1px solid #dddddd;
+}
+
+.bank-label {
+    font-weight: 700;
+    color: #111111;
+}
+
+.bank-value {
+    color: #222222;
+}
+
+.banking-warning {
+    background: #00563f;
+    color: #ffffff;
+    border-top: 3px solid #d6a32a;
+    padding: 9px 12px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+} 
 </style>
 </head>
 
@@ -442,10 +515,13 @@ button,
 
     <div class="quote-header">
 
-      <div class="quote-brand">
-        <h2>RSAinn</h2>
-        <p>Holiday Getaways</p>
-      </div>
+    <div class="quote-brand">
+    <img
+        src="rsainn-logo.png"
+        alt="RSAinn Holiday Getaways"
+        class="quote-logo"
+    >
+</div>
 
       <div class="quote-heading">
         <h1>QUOTATION</h1>
@@ -572,6 +648,40 @@ button,
           </tr>
 
         </table>
+        <!-- BANKING DETAILS -->
+<div class="banking-details">
+
+    <div class="banking-title">
+        BANKING DETAILS
+    </div>
+
+    <div class="banking-grid">
+
+        <div class="bank-label">Bank</div>
+        <div class="bank-value">Absa Bank Ltd</div>
+
+        <div class="bank-label">Account Name</div>
+        <div class="bank-value">RSAINN (PTY) LTD</div>
+
+        <div class="bank-label">Account Type</div>
+        <div class="bank-value">Current</div>
+
+        <div class="bank-label">Account Number</div>
+        <div class="bank-value">4128117929</div>
+
+        <div class="bank-label">Branch Code</div>
+        <div class="bank-value">632005</div>
+
+        <div class="bank-label">Reference</div>
+        <div class="bank-value">Guest Name + Dates</div>
+
+    </div>
+
+    <div class="banking-warning">
+        PLEASE VERIFY THESE BANKING DETAILS BEFORE MAKING PAYMENT.
+    </div>
+
+</div>
 
       </div>
 
