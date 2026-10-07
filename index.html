@@ -755,31 +755,58 @@ async function loadDashboardStats() {
             confirmedBookings.length;
 
 
-        // -----------------------------
-        // 3. PENDING PAYMENTS
-        // -----------------------------
-        const pendingPayments = (bookings || []).reduce(
-            (total, booking) => {
+      // -----------------------------
+// 3. PENDING PAYMENTS
+// Confirmed booking value minus payments received
+// -----------------------------
 
-                if (
-                    String(booking.booking_status || "")
-                        .toLowerCase() !== "confirmed"
-                ) {
-                    return total;
-                }
+const confirmedBookingIds =
+    confirmedBookings.map(booking => booking.id);
 
-                return total + Number(booking.total_due || 0);
+let payments = [];
 
-            },
-            0
-        );
+if (confirmedBookingIds.length > 0) {
 
-        document.getElementById("pendingPaymentsAmount").textContent =
-            "R" +
-            pendingPayments.toLocaleString("en-ZA", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
+    const { data: paymentData, error: paymentsError } =
+        await supabaseClient
+            .from("payments")
+            .select("booking_id, amount")
+            .in("booking_id", confirmedBookingIds);
+
+    if (paymentsError) throw paymentsError;
+
+    payments = paymentData || [];
+}
+
+// Total value of confirmed bookings
+const confirmedBookingValue =
+    confirmedBookings.reduce(
+        (total, booking) =>
+            total + Number(booking.total_due || 0),
+        0
+    );
+
+// Total payments received against confirmed bookings
+const paymentsReceived =
+    payments.reduce(
+        (total, payment) =>
+            total + Number(payment.amount || 0),
+        0
+    );
+
+// Outstanding balance
+const pendingPayments =
+    Math.max(
+        0,
+        confirmedBookingValue - paymentsReceived
+    );
+
+document.getElementById("pendingPaymentsAmount").textContent =
+    "R" +
+    pendingPayments.toLocaleString("en-ZA", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
 
 
         // -----------------------------
