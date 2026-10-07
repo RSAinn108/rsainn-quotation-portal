@@ -777,6 +777,10 @@ if (isEditMode && editQuoteId) {
   return;
 }
 
+// New quote successfully saved — return to dashboard
+window.location.href = "index.html";
+return;
+
   } catch (error) {
 
     console.error("Unexpected error:", error);
