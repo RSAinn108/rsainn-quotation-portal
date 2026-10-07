@@ -449,35 +449,82 @@ body{
 @media(max-width:650px){
 
   .container{
-    padding:20px 10px 45px;
+    padding:18px 6px 45px;
   }
 
   .calendar-wrap{
-    padding:8px;
+    padding:5px;
   }
 
   .calendar{
-    gap:3px;
+    grid-template-columns:repeat(7,minmax(0,1fr));
+    gap:2px;
+  }
+
+  .weekdays{
+    grid-template-columns:repeat(7,minmax(0,1fr));
+    gap:2px;
   }
 
   .day{
-    min-height:78px;
-    padding:6px;
+    min-width:0;
+    min-height:64px;
+    padding:4px 2px;
+    border-radius:6px;
+    overflow:hidden;
+  }
+
+  .day-number{
+    font-size:12px;
   }
 
   .rate{
-    font-size:12px;
-    margin-top:13px;
+    font-size:10px;
+    margin-top:8px;
+    white-space:nowrap;
   }
 
   .no-rate{
-    font-size:10px;
-    margin-top:13px;
+    font-size:9px;
+    margin-top:8px;
+    white-space:nowrap;
   }
 
   .weekday{
-    font-size:10px;
-    padding:5px 1px;
+    min-width:0;
+    font-size:9px;
+    padding:4px 0;
+  }
+
+  .booked-badge{
+    display:block;
+    width:100%;
+    margin-top:3px;
+    padding:2px 1px;
+    font-size:7px;
+    letter-spacing:0;
+    text-align:center;
+    overflow:hidden;
+  }
+
+  .calendar-header{
+    padding:11px 10px;
+  }
+
+  .calendar-header h3{
+    font-size:18px;
+  }
+
+  .month-btn{
+    width:34px;
+    height:34px;
+    font-size:18px;
+  }
+
+  .legend{
+    padding:0 10px 14px;
+    gap:10px;
+    font-size:11px;
   }
 }
 </style>
