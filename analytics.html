@@ -456,7 +456,8 @@
 <div id="message" class="notice" role="status">Loading booking information…</div>
 <section class="analytics-grid"><div class="analytics-card"><small>Full-year booked occupancy</small><strong id="occupancy">—</strong></div><div class="analytics-card"><small>Occupancy to date</small><strong id="todate">—</strong></div><div class="analytics-card"><small>Booked nights</small><strong id="nights">—</strong></div><div class="analytics-card"><small>Monthly booking revenue</small><strong id="revenue">—</strong></div><div class="analytics-card"><small>Monthly profit / loss</small><strong id="profit">—</strong></div></section>
 <div class="panel"><div class="panel-header"><h3>Monthly Occupancy</h3></div><div class="panel-body analytics-table-wrap"><table class="analytics-table"><thead><tr><th>Month</th><th>Booked nights</th><th>Days</th><th>Occupancy</th><th>Confirmed revenue*</th></tr></thead><tbody id="monthlyRows"></tbody></table><p class="stat-sub">Booked nights include check-in nights and exclude checkout nights. Only confirmed/accepted/booked reservations count; manual blocks are excluded unless stored as one of these statuses. *Revenue is assigned to stay nights proportionally when a booking crosses months.</p></div></div>
-<div class="panel" style="margin-top:20px"><div class="panel-header"><h3>Monthly Expenses & Break-even</h3></div><div class="panel-body"><p class="stat-sub">Edit fixed expenses below. These values are saved in this browser only (not yet shared between devices). Cleaning & key handling is calculated automatically at R500 per confirmed stay, assigned to the check-out month.</p>
+<div class="panel" style="margin-top:20px"><div class="panel-header"><h3>Monthly Expenses & Break-even</h3></div><div class="panel-body"><p class="stat-sub">Fixed expenses are stored in Supabase and shared between devices (temporary testing mode without sign-in). Cleaning & key handling is calculated automatically at R500 per confirmed stay, assigned to the check-out month.</p>
+<div id="financeStatus" class="notice" role="status">Loading shared expenses…</div>
 <div class="analytics-table-wrap"><table class="analytics-table"><thead><tr><th>Expense</th><th>Amount (R)</th></tr></thead><tbody id="expenseRows"></tbody></table></div>
 <div class="analytics-grid"><div class="analytics-card"><small>Fixed expenses</small><strong id="fixed">—</strong></div><div class="analytics-card"><small>Cleaning / key handling</small><strong id="turnover">—</strong><div class="stat-sub" id="bookingCount"></div></div><div class="analytics-card"><small>Total expenses</small><strong id="costs">—</strong></div><div class="analytics-card"><small>Remaining to break even</small><strong id="shortfall">—</strong></div></div>
 <strong>Revenue covering monthly expenses: <span id="coverage">—</span></strong><div class="meter"><div class="meter-fill" id="meter"></div></div><p class="stat-sub" id="breakEvenNote"></p>
@@ -473,13 +474,50 @@ const dayNumber=s=>Math.floor(Date.parse(s+'T00:00:00Z')/86400000);
 const isoDay=n=>new Date(n*86400000).toISOString().slice(0,10);
 const today=new Date();
 let bookings=[],blocks=[],loadFailed=false;
-for(let y=today.getFullYear()-3;y<=today.getFullYear()+2;y++)$('year').add(new Option(y,y));
-$('year').value=String(today.getFullYear());
+for(let y=2026;y<=2030;y++)$('year').add(new Option(y,y));
+$('year').value=String(Math.min(2030,Math.max(2026,today.getFullYear())));
 MONTHS.forEach((m,i)=>$('month').add(new Option(m,i)));
 $('month').value=String(today.getMonth());
-const expenseKey=()=>`rsainn_analytics_expenses_${$('year').value}_${pad(Number($('month').value)+1)}`;
-function expenses(){try{return {...Object.fromEntries(CATEGORIES.map(([id,,v])=>[id,v])),...JSON.parse(localStorage.getItem(expenseKey())||'{}')}}catch{return Object.fromEntries(CATEGORIES.map(([id,,v])=>[id,v]))}}
-function showExpenses(){const vals=expenses();$('expenseRows').innerHTML='';CATEGORIES.forEach(([id,name])=>{const tr=document.createElement('tr');const label=document.createElement('td');label.textContent=name;const td=document.createElement('td');const input=document.createElement('input');input.className='expense-input';input.type='number';input.min='0';input.step='0.01';input.value=vals[id];input.setAttribute('aria-label',name);input.addEventListener('change',()=>{const updated=expenses();updated[id]=Math.max(0,Number(input.value)||0);localStorage.setItem(expenseKey(),JSON.stringify(updated));render()});td.append(input);tr.append(label,td);$('expenseRows').append(tr)})}
+// Shared expenses test mode: no authentication required.
+let financeValues=null, financeLoading=false, requestId=0;
+const defaultExpenses=()=>Object.fromEntries(CATEGORIES.map(([id,,v])=>[id,v]));
+const expenses=()=>financeValues||{};
+function financeMessage(message){$('financeStatus').textContent=message}
+function showExpenses(){
+  const vals=expenses();$('expenseRows').innerHTML='';
+  CATEGORIES.forEach(([id,name])=>{
+    const tr=document.createElement('tr'),label=document.createElement('td'),td=document.createElement('td');
+    label.textContent=name;
+    const input=document.createElement('input');input.className='expense-input';input.type='number';input.min='0';input.step='0.01';
+    input.value=financeValues===null?'':String(vals[id]??0);
+    input.placeholder=financeValues===null?'Loading…':'0';input.disabled=financeValues===null||financeLoading;
+    input.setAttribute('aria-label',name);
+    input.addEventListener('change',async()=>{
+      if(financeValues===null)return;
+      const old=financeValues[id]??0, amount=Number(input.value);
+      if(!Number.isFinite(amount)||amount<0){input.value=old;financeMessage('Please enter a valid amount of R0 or more.');return}
+      input.disabled=true;financeMessage('Saving expense to Supabase…');
+      const monthDate=$('year').value+'-'+pad(Number($('month').value)+1)+'-01';
+      const {error}=await client.from('analytics_monthly_expenses').upsert({property_id:1,month_start:monthDate,category:id,amount},{onConflict:'property_id,month_start,category'});
+      if(error){financeMessage('Save failed: '+error.message);input.value=old}
+      else{financeMessage('Saved to Supabase. Refresh another device to see the change.');}
+      await loadSharedExpenses();
+    });
+    td.append(input);tr.append(label,td);$('expenseRows').append(tr);
+  });
+}
+async function loadSharedExpenses(){
+  const thisRequest=++requestId; financeValues=null;financeLoading=true;render();
+  const monthDate=$('year').value+'-'+pad(Number($('month').value)+1)+'-01';
+  financeMessage('Loading shared expenses…');
+  const {data,error}=await client.from('analytics_monthly_expenses').select('category,amount').eq('property_id',1).eq('month_start',monthDate);
+  if(thisRequest!==requestId)return;
+  financeLoading=false;
+  if(error){financeMessage('Cannot load expenses: '+error.message);render();return}
+  financeValues={...defaultExpenses(),...Object.fromEntries((data||[]).map(r=>[r.category,Number(r.amount)]))};
+  financeMessage((data||[]).length?'Shared expenses loaded from Supabase.':'Starter amounts shown. Change a value to save it to Supabase.');
+  render();
+}
 function validBooking(b){return Number(b.property_id)===1 && ['confirmed','accepted','booked'].includes(String(b.booking_status||'').toLowerCase()) && /^\d{4}-\d\d-\d\d$/.test(b.check_in||'') && /^\d{4}-\d\d-\d\d$/.test(b.check_out||'') && dayNumber(b.check_out)>dayNumber(b.check_in)}
 async function fetchAll(){let rows=[];for(let from=0;from<10000;from+=1000){const {data,error}=await client.from('bookings').select('*').range(from,from+999);if(error)throw error;rows.push(...(data||[]));if(!data||data.length<1000)break}if(rows.length>=10000)throw Error('Booking limit reached; reporting may be incomplete.');return rows}
 async function refresh(){loadFailed=true;$('message').textContent='Loading confirmed bookings…';try{bookings=(await fetchAll()).filter(validBooking);loadFailed=false;$('message').textContent=`Loaded ${bookings.length} confirmed booking(s). Revenue uses booking totals, not payments received; platform fees are not deducted.`;render()}catch(e){$('message').textContent='Could not load bookings: '+e.message+' — financial figures are unavailable.';console.error(e);render()}}
@@ -495,7 +533,7 @@ const cutoff=todayStr<endYear?todayStr:endYear;
 let elapsed=0,occupiedElapsed=0;
 if(cutoff>=startYear){elapsed=dayNumber(cutoff)-dayNumber(startYear)+1;for(const stat of stats){for(const d of stat.nights){if(d<=cutoff)occupiedElapsed++}}}
 $('todate').textContent=elapsed? (100*occupiedElapsed/elapsed).toFixed(1)+'%':'—';
-const fixed=Object.values(expenses()).reduce((a,b)=>a+(Number(b)||0),0),turnover=current.turnovers*500,costs=fixed+turnover,profit=current.revenue-costs;
-$('revenue').textContent=money(current.revenue);$('fixed').textContent=money(fixed);$('turnover').textContent=money(turnover);$('bookingCount').textContent=current.turnovers+' checkout(s) × R500';$('costs').textContent=money(costs);$('profit').textContent=money(profit);$('profit').className=profit>=0?'positive':'negative';$('shortfall').textContent=money(Math.max(0,-profit));const coverage=costs>0?current.revenue/costs*100:100;$('coverage').textContent=coverage.toFixed(1)+'%';$('meter').style.width=Math.min(100,coverage)+'%';$('breakEvenNote').textContent='Revenue and expenses are estimates for the selected month. Revenue includes unpaid booking balances and excludes any platform commissions; fixed expenses are entered manually.'}
-$('year').addEventListener('change',render);$('month').addEventListener('change',render);$('refresh').addEventListener('click',refresh);refresh();
+const fixed=financeValues===null?null:Object.values(expenses()).reduce((a,b)=>a+(Number(b)||0),0),turnover=current.turnovers*500,costs=fixed===null?null:fixed+turnover,profit=costs===null?null:current.revenue-costs;
+$('revenue').textContent=money(current.revenue);$('fixed').textContent=fixed===null?'—':money(fixed);$('turnover').textContent=money(turnover);$('bookingCount').textContent=current.turnovers+' checkout(s) × R500';$('costs').textContent=costs===null?'—':money(costs);$('profit').textContent=profit===null?'—':money(profit);$('profit').className=profit===null?'':profit>=0?'positive':'negative';$('shortfall').textContent=profit===null?'—':money(Math.max(0,-profit));const coverage=costs===null?0:costs>0?current.revenue/costs*100:100;$('coverage').textContent=costs===null?'—':coverage.toFixed(1)+'%';$('meter').style.width=Math.min(100,coverage)+'%';$('breakEvenNote').textContent='Revenue and expenses are estimates for the selected month. Revenue includes unpaid booking balances and excludes any platform commissions; fixed expenses are entered manually.'}
+$('year').addEventListener('change',loadSharedExpenses);$('month').addEventListener('change',loadSharedExpenses);$('refresh').addEventListener('click',async()=>{await Promise.all([refresh(),loadSharedExpenses()])});refresh();loadSharedExpenses();
 </script></body></html>
