@@ -30,78 +30,31 @@ body{
   color:var(--text);
 }
 
-/* HEADER */
-
+/* DASHBOARD-STYLE HEADER AND NAVIGATION */
 .topbar{
-  min-height:78px;
-  background:linear-gradient(135deg,var(--green-dark),var(--green));
-  color:white;
+  background:#fff;
+  color:#111;
+  min-height:235px;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:14px 28px;
+  gap:20px;
+  padding:10px 40px;
   border-bottom:3px solid var(--gold);
 }
-
-.brand{
-  display:flex;
-  align-items:center;
-  gap:15px;
-}
-
-.brand-mark{
-  width:52px;
-  height:52px;
-  border-radius:50%;
-  border:2px solid var(--gold);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-family:Georgia,serif;
-  font-weight:bold;
-  font-size:22px;
-  color:var(--gold-light);
-}
-
-.brand h1{
-  margin:0;
-  font-family:Georgia,serif;
-  font-size:25px;
-}
-
-.brand p{
-  margin:4px 0 0;
-  color:#e6d39c;
-  font-size:13px;
-}
-
-/* NAV */
-
-.nav{
-  background:white;
-  border-bottom:1px solid var(--border);
-  display:flex;
-  gap:4px;
-  padding:0 25px;
-  overflow-x:auto;
-}
-
-.nav a{
-  text-decoration:none;
-  padding:17px 18px;
-  font-weight:700;
-  color:#53605b;
-  border-bottom:3px solid transparent;
-  white-space:nowrap;
-}
-
-.nav a:hover{
-  color:var(--green);
-}
-
-.nav a.active{
-  color:var(--green);
-  border-bottom-color:var(--gold);
+.brand-logo{display:block;width:290px;max-width:100%;height:auto;object-fit:contain}
+.property-heading{text-align:right;font-size:16px;line-height:1.5}
+.property-heading strong{display:block}
+.nav{background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0;padding:0 32px;overflow-x:auto}
+.nav a{text-decoration:none;padding:20px 24px;font-weight:700;font-size:16px;color:#53605b;white-space:nowrap;border-bottom:3px solid transparent}
+.nav a:hover,.nav a.active{color:var(--green)}
+.nav a.active{border-bottom-color:var(--gold)}
+@media(max-width:650px){
+  .topbar{min-height:0;padding:12px;gap:10px}
+  .brand-logo{width:155px}
+  .property-heading{font-size:12px}
+  .nav{padding:0 6px}
+  .nav a{font-size:13px;padding:13px 12px}
 }
 
 /* MAIN */
@@ -533,28 +486,22 @@ body{
 <body>
 
 <header class="topbar">
-
   <div class="brand">
-    <div class="brand-mark">RSA</div>
-
-    <div>
-      <h1>RSAinn</h1>
-      <p>Quotation & Booking Portal</p>
-    </div>
+    <img class="brand-logo" src="logo.png" alt="RSAinn Holiday Getaways logo">
   </div>
-
-  <div>
-    <strong>Driftsands 108</strong>
+  <div class="property-heading">
+    <strong>RSAinn Holiday Getaways</strong>
+    <span>Driftsands 108</span>
   </div>
-
 </header>
 
-<nav class="nav">
+<nav class="nav" aria-label="Portal navigation">
   <a href="index.html">Dashboard</a>
-  <a href="calendar.html" class="active">Calendar & Rates</a>
+  <a href="calendar.html" class="active" aria-current="page">Calendar &amp; Rates</a>
   <a href="#">Create Quote</a>
   <a href="#">Quotes</a>
   <a href="#">Bookings</a>
+  <a href="#">Analytics</a>
   <a href="#">Settings</a>
 </nav>
 
