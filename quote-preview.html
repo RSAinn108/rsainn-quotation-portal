@@ -308,6 +308,7 @@ button,
     /* Hide portal controls */
     header,
     .action-bar,
+    #validityEditor,
     .toolbar,
     .top-actions,
     .actions {
@@ -552,6 +553,19 @@ button,
 
 </div>
 
+
+  <!-- Validity editor is outside the printable quotation -->
+  <section id="validityEditor" style="background:#fff;border:1px solid #dde3df;border-radius:12px;padding:18px 20px;margin-bottom:20px;display:none;box-shadow:0 5px 18px rgba(0,0,0,.05)">
+    <div style="font-weight:700;color:#004d3b;margin-bottom:8px">Extend Quotation Validity</div>
+    <p style="color:#69736e;font-size:14px;margin:0 0 14px">Current expiry: <strong id="currentExpiry"></strong>. Choose a later date and save it before downloading the updated PDF.</p>
+    <div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap">
+      <label style="font-size:13px;font-weight:700">New valid-until date<br>
+        <input id="extendedValidityDate" type="date" style="margin-top:6px;padding:10px;border:1px solid #dde3df;border-radius:8px;font:inherit">
+      </label>
+      <button type="button" class="primary" id="saveExtendedValidity">Save New Validity Date</button>
+    </div>
+    <p id="validityFeedback" role="status" aria-live="polite" style="margin:12px 0 0;font-size:13px"></p>
+  </section>
 
 <div class="quote" id="quoteContainer">
 
@@ -872,6 +886,7 @@ async function loadQuote() {
 
 
   currentQuote = data;
+  configureValidityEditor(data);
 
 
   document.getElementById(
@@ -979,6 +994,68 @@ async function loadQuote() {
 
 }
 
+
+// Validity changes update only quotes.valid_until; no booking, payment or price changes.
+function localISODate(date = new Date()) {
+  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
+}
+function configureValidityEditor(quote) {
+  const editor = document.getElementById("validityEditor");
+  const input = document.getElementById("extendedValidityDate");
+  const converted = ["accepted", "converted"].includes(String(quote.status || "").toLowerCase());
+  editor.style.display = converted ? "none" : "block";
+  if (converted) return;
+  document.getElementById("currentExpiry").textContent = formatDate(quote.valid_until);
+  const today = localISODate();
+  input.min = today;
+  input.value = quote.valid_until && quote.valid_until >= today ? quote.valid_until : today;
+  document.getElementById("validityFeedback").textContent = "";
+}
+
+document.getElementById("saveExtendedValidity").addEventListener("click", async function () {
+  if (!currentQuote) return;
+  const input = document.getElementById("extendedValidityDate");
+  const feedback = document.getElementById("validityFeedback");
+  const newDate = input.value;
+  const oldDate = String(currentQuote.valid_until || "").slice(0, 10);
+  const today = localISODate();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(newDate) || newDate < today || (oldDate && newDate <= oldDate)) {
+    feedback.style.color = "#a52828";
+    feedback.textContent = "Choose a valid future date later than the current expiry date.";
+    return;
+  }
+  if (["accepted", "converted"].includes(String(currentQuote.status || "").toLowerCase())) return;
+  if (!confirm(`Extend this quotation's validity to ${formatDate(newDate)}?\n\nThe quoted prices and stay dates will not change.`)) return;
+  const button = this;
+  button.disabled = true;
+  button.textContent = "Saving...";
+  feedback.textContent = "";
+  try {
+    const { data, error } = await supabaseClient.from("quotes")
+      .update({ valid_until: newDate })
+      .eq("id", currentQuote.id)
+      .neq("status", "accepted")
+      .neq("status", "converted")
+      .select("id, valid_until")
+      .single();
+    if (error) throw error;
+    currentQuote.valid_until = data.valid_until;
+    document.getElementById("validUntil").textContent = formatDate(data.valid_until);
+    configureValidityEditor(currentQuote);
+    const statusEl = document.getElementById("quoteStatus");
+    if (!["accepted", "converted", "cancelled", "canceled"].includes(String(currentQuote.status || "").toLowerCase())) {
+      statusEl.textContent = "Active";
+    }
+    feedback.style.color = "#067647";
+    feedback.textContent = "Saved successfully. Download PDF to get the quotation with its updated validity date.";
+  } catch (error) {
+    feedback.style.color = "#a52828";
+    feedback.textContent = "Unable to save the new date: " + error.message;
+  } finally {
+    button.disabled = false;
+    button.textContent = "Save New Validity Date";
+  }
+});
 
 /* BUTTONS */
 
@@ -1209,10 +1286,7 @@ const selectedBookingSource = bookingSources[bookingSource];
 
 
 loadQuote();
-// DOWNLOAD / SAVE QUOTATION AS PDF
-document.getElementById("pdfQuote").addEventListener("click", function () {
-    window.print();
-});
+
 </script>
 
 </body>
