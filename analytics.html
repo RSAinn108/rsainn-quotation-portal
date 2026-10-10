@@ -1,0 +1,494 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>RSAinn Analytics</title><style>
+    :root {
+      --green: #003b2f;
+      --green-dark: #00271f;
+      --green-light: #075844;
+      --gold: #d6a63c;
+      --gold-light: #f0ca6a;
+      --cream: #f7f3e8;
+      --white: #ffffff;
+      --text: #18201d;
+      --muted: #68746f;
+      --border: #e2dfd5;
+      --danger: #b42318;
+      --shadow: 0 8px 28px rgba(0,0,0,.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f5f3;
+      color: var(--text);
+    }
+
+    /* =========================
+       HEADER
+    ========================== */
+
+  .topbar {
+    min-height: 105px;
+    background: #ffffff;
+    color: #111111;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 28px;
+    border-bottom: 3px solid var(--gold);
+    box-shadow: 0 4px 18px rgba(0,0,0,.08);
+}
+
+   .brand {
+    display: flex;
+    align-items: center;
+}
+
+.brand-logo {
+    display: block;
+    width: 240px;
+    height: auto;
+    object-fit: contain;
+}
+    .user-area {
+      text-align: right;
+      font-size: 13px;
+      color: #111111;
+    }
+
+    .user-area strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 3px;
+    }
+
+    /* =========================
+       NAVIGATION
+    ========================== */
+
+    .nav {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 4px;
+      padding: 0 25px;
+      overflow-x: auto;
+    }
+
+    .nav button {
+      border: 0;
+      background: transparent;
+      padding: 17px 18px;
+      font-weight: 700;
+      color: #53605b;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+    }
+
+    .nav button:hover {
+      color: var(--green);
+    }
+
+    .nav button.active {
+      color: var(--green);
+      border-bottom-color: var(--gold);
+    }
+
+    /* =========================
+       MAIN CONTENT
+    ========================== */
+
+    .container {
+      max-width: 1380px;
+      margin: auto;
+      padding: 30px 25px 60px;
+    }
+
+    .welcome {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+
+    .welcome h2 {
+      margin: 0;
+      color: var(--green);
+      font-family: Georgia, serif;
+      font-size: 30px;
+    }
+
+    .welcome p {
+      margin: 7px 0 0;
+      color: var(--muted);
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, #d09b2e, #e8bd58);
+      color: #1e251f;
+      border: 0;
+      border-radius: 9px;
+      padding: 13px 20px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(172,125,28,.2);
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    /* =========================
+       STATS
+    ========================== */
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 25px;
+    }
+
+    .stat-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 21px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 5px;
+      height: 100%;
+      background: var(--gold);
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .stat-value {
+      color: var(--green);
+      font-size: 29px;
+      font-weight: 800;
+      margin-top: 8px;
+    }
+
+    .stat-sub {
+      margin-top: 5px;
+      font-size: 12px;
+      color: #87908c;
+    }
+
+    /* =========================
+       PANELS
+    ========================== */
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1.4fr .8fr;
+      gap: 20px;
+    }
+
+    .panel {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      background: var(--green);
+      color: white;
+      padding: 15px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid var(--gold);
+    }
+
+    .panel-header h3 {
+      margin: 0;
+      font-family: Georgia, serif;
+      font-size: 18px;
+    }
+
+    .panel-body {
+      padding: 18px;
+    }
+
+    /* =========================
+       QUOTES TABLE
+    ========================== */
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      padding: 11px 9px;
+      font-size: 12px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 14px 9px;
+      border-bottom: 1px solid #efefeb;
+      font-size: 13px;
+    }
+
+    .empty-table {
+      text-align: center;
+      padding: 35px 10px;
+      color: #87908c;
+    }
+
+    /* =========================
+       QUICK ACTIONS
+    ========================== */
+
+    .quick-actions {
+      display: grid;
+      gap: 11px;
+    }
+
+    .action-card {
+      border: 1px solid var(--border);
+      background: #fafaf7;
+      border-radius: 10px;
+      padding: 15px;
+      cursor: pointer;
+      transition: .15s;
+    }
+
+    .action-card:hover {
+      border-color: var(--gold);
+      transform: translateY(-1px);
+      background: #fffdf7;
+    }
+
+    .action-title {
+      font-weight: 800;
+      color: var(--green);
+      margin-bottom: 4px;
+    }
+
+    .action-desc {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    /* =========================
+       STATUS
+    ========================== */
+
+    .status {
+      display: inline-block;
+      border-radius: 20px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .status.draft {
+      background: #eeeeea;
+      color: #555;
+    }
+
+    .status.sent {
+      background: #e8f1ff;
+      color: #175cd3;
+    }
+
+    .status.confirmed {
+      background: #e7f7ed;
+      color: #067647;
+    }
+
+    .status.expired {
+      background: #fff0ed;
+      color: #b42318;
+    }
+
+    /* =========================
+       FOOTER
+    ========================== */
+
+    footer {
+      text-align: center;
+      color: #8b938f;
+      font-size: 12px;
+      padding: 25px;
+    }
+
+    footer strong {
+      color: var(--green);
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================== */
+
+    @media (max-width: 900px) {
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .welcome {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 560px) {
+
+      .topbar {
+        padding: 12px 16px;
+      }
+
+      .brand-text h1 {
+        font-size: 20px;
+      }
+
+      .user-area {
+        display: none;
+      }
+
+      .container {
+        padding: 22px 14px 45px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .stat-card {
+        padding: 16px;
+      }
+
+      .stat-value {
+        font-size: 23px;
+      }
+
+      .nav {
+        padding: 0 8px;
+      }
+    }
+  
+.analytics-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:18px 0}
+.analytics-card{background:white;border:1px solid var(--border);border-radius:12px;padding:17px;box-shadow:var(--shadow)}
+.analytics-card small{color:var(--muted);font-weight:700;display:block;margin-bottom:8px}
+.analytics-card strong{font-size:23px;color:var(--green);overflow-wrap:anywhere}
+.analytics-controls{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin:18px 0}
+.analytics-controls label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:700}
+.analytics-controls select,.expense-input{padding:10px;border:1px solid var(--border);border-radius:7px;background:white;max-width:100%}
+.analytics-table-wrap{overflow-x:auto}.analytics-table{min-width:620px}
+.analytics-table td,.analytics-table th{white-space:nowrap}
+.expense-input{width:135px;text-align:right}.notice{padding:12px;background:#fff8e5;border:1px solid #e9c779;border-radius:8px;font-size:13px;margin:12px 0}
+.meter{height:12px;background:#e9edea;border-radius:12px;overflow:hidden;margin:12px 0}.meter-fill{height:100%;background:var(--gold);width:0}
+.positive{color:#087044!important}.negative{color:#b42318!important}
+@media(max-width:900px){.analytics-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.analytics-grid{gap:8px}.analytics-card{padding:12px}.analytics-card strong{font-size:19px}}
+</style></head><body>
+<header class="topbar"><div class="brand"><img src="rsainn-logo.png" alt="RSAinn" class="brand-logo"></div><div class="user-area"><strong>RSAinn Holiday Getaways</strong>Driftsands 108</div></header>
+<nav class="nav">
+
+    <button 
+        onclick="window.location.href='index.html'">
+        Dashboard
+    </button>
+
+    <button
+        onclick="window.location.href='calendar.html'">
+        Calendar & Rates
+    </button>
+
+    <button
+        onclick="window.location.href='quote.html'">
+        Create Quote
+    </button>
+
+    <button
+        onclick="window.location.href='quotes.html'">
+        Quotes
+    </button>
+
+    <button
+        onclick="window.location.href='bookings.html'">
+        Bookings
+    </button>
+
+    <button class="active" onclick="window.location.href='analytics.html'">Analytics</button>
+
+    <button
+        onclick="window.location.href='settings.html'">
+        Settings
+    </button>
+
+</nav>
+<main class="container"><section class="welcome"><div><h2>Analytics</h2><p>Occupancy, expenses and break-even • Driftsands 108</p></div></section>
+<div class="analytics-controls"><label>Reporting year<select id="year"></select></label><label>Expense month<select id="month"></select></label><button class="primary-btn" id="refresh">Refresh bookings</button></div>
+<div id="message" class="notice" role="status">Loading booking information…</div>
+<section class="analytics-grid"><div class="analytics-card"><small>Annual booked occupancy</small><strong id="occupancy">—</strong></div><div class="analytics-card"><small>Booked nights</small><strong id="nights">—</strong></div><div class="analytics-card"><small>Monthly booking revenue</small><strong id="revenue">—</strong></div><div class="analytics-card"><small>Monthly profit / loss</small><strong id="profit">—</strong></div></section>
+<div class="panel"><div class="panel-header"><h3>Monthly Occupancy</h3></div><div class="panel-body analytics-table-wrap"><table class="analytics-table"><thead><tr><th>Month</th><th>Booked nights</th><th>Days</th><th>Occupancy</th><th>Confirmed revenue*</th></tr></thead><tbody id="monthlyRows"></tbody></table><p class="stat-sub">Booked nights count check-in, not check-out. Manually blocked dates are not counted as bookings. *Revenue is assigned to stay nights proportionally when a booking crosses months.</p></div></div>
+<div class="panel" style="margin-top:20px"><div class="panel-header"><h3>Monthly Expenses & Break-even</h3></div><div class="panel-body"><p class="stat-sub">Edit fixed expenses below. These values are saved in this browser only (not yet shared between devices). Cleaning & key handling is calculated automatically at R500 per confirmed stay, assigned to the check-out month.</p>
+<div class="analytics-table-wrap"><table class="analytics-table"><thead><tr><th>Expense</th><th>Amount (R)</th></tr></thead><tbody id="expenseRows"></tbody></table></div>
+<div class="analytics-grid"><div class="analytics-card"><small>Fixed expenses</small><strong id="fixed">—</strong></div><div class="analytics-card"><small>Cleaning / key handling</small><strong id="turnover">—</strong><div class="stat-sub" id="bookingCount"></div></div><div class="analytics-card"><small>Total expenses</small><strong id="costs">—</strong></div><div class="analytics-card"><small>Remaining to break even</small><strong id="shortfall">—</strong></div></div>
+<strong>Revenue covering monthly expenses: <span id="coverage">—</span></strong><div class="meter"><div class="meter-fill" id="meter"></div></div><p class="stat-sub" id="breakEvenNote"></p>
+</div></div></main><footer><strong>RSAinn Holiday Getaways</strong><br>Easy • Secure • Reliable</footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+
+const client=supabase.createClient('https://xhxwjaobubxbretiqwsr.supabase.co','sb_publishable_dN3KP37RRjRY-_0SFCYPkA_lsszaNoH');
+const CATEGORIES=[['bond','Bond',8300],['levies','Levies, water & power',4300],['municipality','Municipality',1100],['insurance','Insurance',660],['wifi','Wi-Fi',800],['salary','Employee salary',3500],['laundry','Laundry',1000]];
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const $=id=>document.getElementById(id);
+const money=v=>'R'+Number(v||0).toLocaleString('en-ZA',{minimumFractionDigits:2,maximumFractionDigits:2});
+const pad=n=>String(n).padStart(2,'0');
+const dayNumber=s=>Math.floor(Date.parse(s+'T00:00:00Z')/86400000);
+const isoDay=n=>new Date(n*86400000).toISOString().slice(0,10);
+const today=new Date();
+let bookings=[],blocks=[],loadFailed=false;
+for(let y=today.getFullYear()-3;y<=today.getFullYear()+2;y++)$('year').add(new Option(y,y));
+$('year').value=String(today.getFullYear());
+MONTHS.forEach((m,i)=>$('month').add(new Option(m,i)));
+$('month').value=String(today.getMonth());
+const expenseKey=()=>`rsainn_analytics_expenses_${$('year').value}_${pad(Number($('month').value)+1)}`;
+function expenses(){try{return {...Object.fromEntries(CATEGORIES.map(([id,,v])=>[id,v])),...JSON.parse(localStorage.getItem(expenseKey())||'{}')}}catch{return Object.fromEntries(CATEGORIES.map(([id,,v])=>[id,v]))}}
+function showExpenses(){const vals=expenses();$('expenseRows').innerHTML='';CATEGORIES.forEach(([id,name])=>{const tr=document.createElement('tr');const label=document.createElement('td');label.textContent=name;const td=document.createElement('td');const input=document.createElement('input');input.className='expense-input';input.type='number';input.min='0';input.step='0.01';input.value=vals[id];input.setAttribute('aria-label',name);input.addEventListener('change',()=>{const updated=expenses();updated[id]=Math.max(0,Number(input.value)||0);localStorage.setItem(expenseKey(),JSON.stringify(updated));render()});td.append(input);tr.append(label,td);$('expenseRows').append(tr)})}
+function validBooking(b){return String(b.booking_status||'').toLowerCase()==='confirmed' && /^\d{4}-\d\d-\d\d$/.test(b.check_in||'') && /^\d{4}-\d\d-\d\d$/.test(b.check_out||'') && dayNumber(b.check_out)>dayNumber(b.check_in)}
+async function fetchAll(){let rows=[];for(let from=0;from<10000;from+=1000){const {data,error}=await client.from('bookings').select('*').range(from,from+999);if(error)throw error;rows.push(...(data||[]));if(!data||data.length<1000)break}if(rows.length>=10000)throw Error('Booking limit reached; reporting may be incomplete.');return rows}
+async function refresh(){loadFailed=true;$('message').textContent='Loading confirmed bookings…';try{bookings=(await fetchAll()).filter(validBooking);loadFailed=false;$('message').textContent=`Loaded ${bookings.length} confirmed booking(s). Revenue is based on booking total_due, not payments received; platform fees are not deducted.`;render()}catch(e){$('message').textContent='Could not load bookings: '+e.message+' — financial figures are unavailable.';console.error(e);render()}}
+function monthlyStats(year){const stats=MONTHS.map((month,m)=>({month,days:new Date(year,m+1,0).getDate(),nights:new Set(),revenue:0,turnovers:0}));for(const b of bookings){const start=dayNumber(b.check_in),end=dayNumber(b.check_out),length=end-start,amount=Number(b.total_due)||0;for(let d=start;d<end;d++){const date=isoDay(d),y=Number(date.slice(0,4)),m=Number(date.slice(5,7))-1;if(y===year){stats[m].nights.add(date);stats[m].revenue+=amount/length}}const out=new Date(b.check_out+'T00:00:00Z');if(out.getUTCFullYear()===year)stats[out.getUTCMonth()].turnovers++}return stats}
+function render(){showExpenses();if(loadFailed){for(const id of ['occupancy','nights','revenue','profit','fixed','turnover','costs','shortfall','coverage'])$(id).textContent='—';$('monthlyRows').innerHTML='';$('meter').style.width='0%';return}
+const stats=monthlyStats(Number($('year').value)),index=Number($('month').value),current=stats[index];let occupied=0,days=0;
+$('monthlyRows').innerHTML='';stats.forEach(s=>{occupied+=s.nights.size;days+=s.days;const tr=document.createElement('tr');[s.month,s.nights.size+' / '+s.days,s.days,(100*s.nights.size/s.days).toFixed(1)+'%',money(s.revenue)].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.append(td)});$('monthlyRows').append(tr)});
+$('occupancy').textContent=(100*occupied/days).toFixed(1)+'%';$('nights').textContent=occupied;
+const fixed=Object.values(expenses()).reduce((a,b)=>a+(Number(b)||0),0),turnover=current.turnovers*500,costs=fixed+turnover,profit=current.revenue-costs;
+$('revenue').textContent=money(current.revenue);$('fixed').textContent=money(fixed);$('turnover').textContent=money(turnover);$('bookingCount').textContent=current.turnovers+' checkout(s) × R500';$('costs').textContent=money(costs);$('profit').textContent=money(profit);$('profit').className=profit>=0?'positive':'negative';$('shortfall').textContent=money(Math.max(0,-profit));const coverage=costs>0?current.revenue/costs*100:100;$('coverage').textContent=coverage.toFixed(1)+'%';$('meter').style.width=Math.min(100,coverage)+'%';$('breakEvenNote').textContent='Revenue and expenses are estimates for the selected month. Revenue includes unpaid booking balances and excludes any platform commissions; fixed expenses are entered manually.'}
+$('year').addEventListener('change',render);$('month').addEventListener('change',render);$('refresh').addEventListener('click',refresh);refresh();
+</script></body></html>
