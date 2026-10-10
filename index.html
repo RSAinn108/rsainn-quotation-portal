@@ -337,6 +337,14 @@
       color: #b42318;
     }
 
+    .stat-card[role="link"]:hover {border-color:var(--gold);transform:translateY(-2px)}
+    .quote-link {color:var(--green);font-weight:700;text-decoration:none}
+    .quote-link:hover {text-decoration:underline}
+    .recent-table-wrap {overflow-x:auto}
+    .recent-table-wrap table {min-width:650px}
+    .status.active {background:#e7f7ed;color:#067647}
+    .status.converted {background:#e8f1ff;color:#175cd3}
+    .status.expired {background:#fff0ed;color:#b42318}
     /* =========================
        FOOTER
     ========================== */
@@ -497,7 +505,7 @@
 
     <section class="stats">
 
-      <div class="stat-card">
+      <div class="stat-card" role="link" tabindex="0" aria-label="View active quotations" onclick="window.location.href='quotes.html?filter=active'" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.location.href='quotes.html?filter=active'}" style="cursor:pointer;">
 
         <div class="stat-label">
           Active Quotes
@@ -586,7 +594,7 @@
 
         <div class="panel-body">
 
-          <table>
+          <div class="recent-table-wrap"><table>
 
             <thead>
               <tr>
@@ -595,24 +603,17 @@
                 <th>STAY</th>
                 <th>TOTAL</th>
                 <th>STATUS</th>
+                <th>VALID UNTIL</th>
+                <th>ACTION</th>
               </tr>
             </thead>
 
-            <tbody>
-
-              <tr>
-                <td colspan="5" class="empty-table">
-
-                  No quotations yet.<br><br>
-
-                  Your generated quotations will appear here.
-
-                </td>
-              </tr>
-
+            <tbody id="recentQuotesBody">
+              <tr><td colspan="7" class="empty-table">Loading recent quotations...</td></tr>
             </tbody>
 
-          </table>
+          </table></div>
+          <div style="text-align:right;margin-top:14px"><a class="quote-link" href="quotes.html">View all quotes →</a></div>
 
         </div>
 
@@ -718,23 +719,67 @@
 // DASHBOARD LIVE STATISTICS
 // ==========================================
 
+ function localToday() {
+   const d = new Date();
+   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+ }
+ function quoteState(q) {
+   const status = String(q.status || "").toLowerCase();
+   if (["accepted", "converted", "confirmed", "booked"].includes(status)) return "converted";
+   if (["cancelled", "canceled", "deleted"].includes(status)) return "cancelled";
+   const deadline = String(q.valid_until || "").slice(0,10);
+   if (deadline && deadline < localToday()) return "expired";
+   return "active";
+ }
+ function safeText(v) {
+   return String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+ }
+ function niceDate(v) {
+   if (!v) return "—";
+   const d = new Date(String(v).slice(0,10) + "T12:00:00");
+   return Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString("en-ZA",{day:"2-digit",month:"short",year:"numeric"});
+ }
+ function quoteMoney(v) {
+   return "R" + Number(v || 0).toLocaleString("en-ZA",{minimumFractionDigits:2,maximumFractionDigits:2});
+ }
+ function renderRecentQuotes(quotes) {
+   const body = document.getElementById("recentQuotesBody");
+   if (!body) return;
+   if (!quotes.length) {
+     body.innerHTML = '<tr><td colspan="7" class="empty-table">No quotations found.</td></tr>';
+     return;
+   }
+   body.innerHTML = quotes.map(q => {
+     const state = quoteState(q);
+     const id = encodeURIComponent(q.id);
+     const stay = `${niceDate(q.check_in)} – ${niceDate(q.check_out)}`;
+     return `<tr>
+       <td>${safeText(q.quote_number || "—")}</td>
+       <td>${safeText(q.guest_name || "—")}</td>
+       <td>${safeText(stay)}</td>
+       <td>${quoteMoney(q.total_due)}</td>
+       <td><span class="status ${state}">${safeText(state)}</span></td>
+       <td>${niceDate(q.valid_until)}</td>
+       <td><a class="quote-link" href="quote-preview.html?id=${id}">View</a></td>
+     </tr>`;
+   }).join("");
+ }
+
 async function loadDashboardStats() {
     try {
-        const today = new Date().toISOString().split("T")[0];
+        const today = localToday();
 
         // -----------------------------
         // 1. ACTIVE QUOTES
         // -----------------------------
-        const { data: activeQuotes, error: activeQuotesError } =
-            await supabaseClient
-                .from("quotes")
-                .select("id, valid_until, status")
-                .gte("valid_until", today)
-                .neq("status", "accepted");
+                 const { data: dashboardQuotes, error: activeQuotesError } =
+             await supabaseClient.from("quotes").select("*")
+                 .order("created_at", { ascending: false });
+         if (activeQuotesError) throw activeQuotesError;
+         const activeQuotes = (dashboardQuotes || []).filter(q => quoteState(q) === "active");
+         renderRecentQuotes((dashboardQuotes || []).slice(0, 10));
 
-        if (activeQuotesError) throw activeQuotesError;
-
-        document.getElementById("activeQuotesCount").textContent =
+document.getElementById("activeQuotesCount").textContent =
             activeQuotes?.length || 0;
 
 
