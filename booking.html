@@ -1220,6 +1220,11 @@ function displayBooking() {
     const statusValue =
         String(status).toLowerCase();
 
+    const deleteButton = document.getElementById("deleteBookingButton");
+    deleteButton.style.display =
+        (statusValue === "cancelled" || statusValue === "canceled")
+            ? "inline-block" : "none";
+
     if (
         statusValue === "confirmed" ||
         statusValue === "accepted" ||
@@ -1924,35 +1929,58 @@ async function deleteBooking() {
 
     const reference = currentBooking.booking_number || String(currentBooking.id);
     const guest = currentBooking.guest_name || "Unknown guest";
-    const amount = money(getBookingTotal());
-    const received = money(getAmountReceived());
+    const status = String(currentBooking.booking_status || "").toLowerCase();
 
-    const typed = prompt(
-        "PERMANENTLY DELETE BOOKING?\n\n" +
+    // Protect active bookings from accidental permanent deletion.
+    if (status !== "cancelled" && status !== "canceled") {
+        alert("For safety, only cancelled bookings can be permanently deleted. Cancel the booking first if appropriate.");
+        return;
+    }
+
+    const confirmed = confirm(
+        "PERMANENTLY DELETE CANCELLED BOOKING?\n\n" +
         "Guest: " + guest + "\n" +
         "Reference: " + reference + "\n" +
-        "Booking value: " + amount + "\n" +
-        "Payments recorded: " + received + "\n\n" +
-        "This removes the booking and its payment records from reports. " +
-        "It cannot be undone. The linked quotation will be retained.\n\n" +
-        "Type DELETE to confirm:"
+        "Booking value: " + money(getBookingTotal()) + "\n" +
+        "Payments recorded: " + money(getAmountReceived()) + "\n\n" +
+        "The booking and its payment records will be permanently removed. " +
+        "The linked quotation will remain. This cannot be undone."
     );
-    if (typed !== "DELETE") return;
+    if (!confirmed) return;
+
+    const pin = prompt("Enter your private RSAinn administrator deletion PIN:");
+    if (pin === null) return;
+    if (!pin) {
+        alert("A deletion PIN is required.");
+        return;
+    }
 
     const button = document.getElementById("deleteBookingButton");
     button.disabled = true;
     button.textContent = "Deleting...";
 
     try {
-        const { data, error } = await supabaseClient.rpc(
-            "delete_rsainn_booking",
+        const response = await fetch(
+            SUPABASE_URL + "/functions/v1/rsainn-delete-booking",
             {
-                p_booking_id: currentBooking.id,
-                p_property_id: PROPERTY_ID
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "apikey": SUPABASE_PUBLISHABLE_KEY
+                },
+                body: JSON.stringify({
+                    booking_id: currentBooking.id,
+                    property_id: PROPERTY_ID,
+                    pin: pin
+                }),
+                cache: "no-store"
             }
         );
-        if (error) throw error;
-        if (data !== true) throw new Error("The database did not confirm deletion.");
+
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || result.deleted !== true) {
+            throw new Error(result.error || "The server did not confirm deletion.");
+        }
 
         window.location.replace("bookings.html?deleted=1");
     } catch (error) {
@@ -1963,7 +1991,6 @@ async function deleteBooking() {
         button.textContent = "Delete Booking";
     }
 }
-
 /* =========================
    EDIT BOOKING
 ========================= */
