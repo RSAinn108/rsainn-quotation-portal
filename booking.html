@@ -364,6 +364,19 @@ body {
     background: var(--danger);
     color: white;
 }
+/* PERMANENT DELETE */
+.delete-booking-btn {
+    border: 1px solid var(--danger);
+    background: var(--danger);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+}
+.delete-booking-btn:hover { background: #8f1d15; }
+.delete-booking-btn:disabled { opacity: .55; cursor: wait; }
+
 /* PAYMENT HISTORY */
 
 .payment-table-wrap {
@@ -587,6 +600,15 @@ body {
         onclick="cancelBooking()"
     >
         Cancel Booking
+    </button>
+
+    <button
+        class="delete-booking-btn"
+        id="deleteBookingButton"
+        type="button"
+        onclick="deleteBooking()"
+    >
+        Delete Booking
     </button>
 
     <span
@@ -1889,6 +1911,59 @@ async function cancelBooking() {
         "Booking cancelled successfully."
     );
 }
+/* =========================
+    PERMANENT DELETE BOOKING
+    Uses one database transaction via RPC.
+========================= */
+
+async function deleteBooking() {
+    if (!currentBooking) {
+        alert("Booking has not finished loading.");
+        return;
+    }
+
+    const reference = currentBooking.booking_number || String(currentBooking.id);
+    const guest = currentBooking.guest_name || "Unknown guest";
+    const amount = money(getBookingTotal());
+    const received = money(getAmountReceived());
+
+    const typed = prompt(
+        "PERMANENTLY DELETE BOOKING?\n\n" +
+        "Guest: " + guest + "\n" +
+        "Reference: " + reference + "\n" +
+        "Booking value: " + amount + "\n" +
+        "Payments recorded: " + received + "\n\n" +
+        "This removes the booking and its payment records from reports. " +
+        "It cannot be undone. The linked quotation will be retained.\n\n" +
+        "Type DELETE to confirm:"
+    );
+    if (typed !== "DELETE") return;
+
+    const button = document.getElementById("deleteBookingButton");
+    button.disabled = true;
+    button.textContent = "Deleting...";
+
+    try {
+        const { data, error } = await supabaseClient.rpc(
+            "delete_rsainn_booking",
+            {
+                p_booking_id: currentBooking.id,
+                p_property_id: PROPERTY_ID
+            }
+        );
+        if (error) throw error;
+        if (data !== true) throw new Error("The database did not confirm deletion.");
+
+        window.location.replace("bookings.html?deleted=1");
+    } catch (error) {
+        console.error("Booking deletion error:", error);
+        alert("Unable to delete booking: " + error.message +
+              "\nNo successful deletion was confirmed.");
+        button.disabled = false;
+        button.textContent = "Delete Booking";
+    }
+}
+
 /* =========================
    EDIT BOOKING
 ========================= */

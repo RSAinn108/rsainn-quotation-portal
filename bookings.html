@@ -878,6 +878,12 @@ async function loadBookings() {
 
     allBookings = data || [];
 
+    if (new URLSearchParams(window.location.search).get("deleted") === "1") {
+        alert("Booking deleted successfully. The list and totals have been refreshed.");
+        window.history.replaceState(null, "", "bookings.html");
+    }
+
+
 const { data: paymentData, error: paymentError } =
     await supabaseClient
         .from("payments")
