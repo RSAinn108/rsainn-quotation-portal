@@ -486,7 +486,7 @@ tbody tr:hover {
 
 @media (max-width: 650px) {
     .summary-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .toolbar {
@@ -510,6 +510,46 @@ tbody tr:hover {
         width: 180px;
     }
 }
+
+/* Booking timeline and highlights */
+.timeline-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 0 20px}
+.timeline-stat{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 20px;box-shadow:var(--shadow)}
+.timeline-stat strong{display:block;font-size:28px;color:var(--green);margin-top:5px}
+.timeline-stat span{font-size:12px;font-weight:700;color:var(--muted)}
+.timeline-stat.present{background:#ecf8f0;border-color:#b8dfc7}
+.timeline-stat.upcoming{background:#eef6ff;border-color:#c3daf8}
+.timeline-stat.upcoming strong{color:#1555a0}
+.booking-groups{display:grid;gap:15px;margin-top:18px}
+.booking-group{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+.booking-group-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;background:#f6f6f3}
+.booking-group-head h2{margin:0;font-size:19px;color:#38433f;font-family:Georgia,serif}
+.booking-group-head p{margin:4px 0 0;color:var(--muted);font-size:13px}
+.booking-group.present{border-color:#b8dfc7}
+.booking-group.present .booking-group-head{background:#e4f5e9}
+.booking-group.present .booking-group-head h2{color:#067647}
+.booking-group.upcoming{border-color:#c3daf8}
+.booking-group.upcoming .booking-group-head{background:#eaf3ff}
+.booking-group.upcoming .booking-group-head h2{color:#1555a0}
+.booking-group.cancelled .booking-group-head{background:#fff0ef}
+.booking-group.cancelled .booking-group-head h2{color:#a52921}
+.group-count{border-radius:30px;background:#fff;padding:6px 12px;font-size:12px;font-weight:800;white-space:nowrap}
+.group-table-wrap{overflow-x:auto}
+.group-table{min-width:1040px}
+.group-table th{background:#f8f8f5;color:#34413d;border-bottom:1px solid #e7e7e1}
+.group-table td{padding:13px 15px}
+.group-table tr:last-child td{border-bottom:0}
+.booking-group.present tbody tr{background:#f1fbf4;box-shadow:inset 4px 0 #09814b}
+.booking-group.upcoming tbody tr:first-child{background:#edf6ff;box-shadow:inset 4px 0 #2478d3}
+.timeline-tag{display:inline-block;padding:5px 9px;border-radius:99px;font-size:11px;font-weight:800;white-space:nowrap;margin-top:5px}
+.timeline-tag.present{background:#ccebd9;color:#07653b}
+.timeline-tag.upcoming{background:#d6e9ff;color:#1555a0}
+.timeline-tag.past{background:#eee;color:#525b57}
+.timeline-tag.cancelled{background:#fee0dd;color:#9e241c}
+.timeline-tag.pending{background:#fff2d1;color:#825900}
+.group-empty{padding:18px;color:var(--muted);font-size:14px}
+.toolbar{border-radius:12px;flex-wrap:wrap}
+@media(max-width:700px){.timeline-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.timeline-stat{padding:11px 9px}.timeline-stat strong{font-size:23px}.timeline-stat span{font-size:10px}.booking-group-head h2{font-size:16px}.booking-group-head{padding:13px}.summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
 </style>
 </head>
 
@@ -684,56 +724,31 @@ tbody tr:hover {
 
 </section>
 
-    <section>
-
-        <div class="toolbar">
-
-            <div class="search-box">
-                <input
-                    type="text"
-                    id="bookingSearch"
-                    placeholder="Search booking number or guest..."
-                >
-            </div>
-
-            <select id="statusFilter" class="filter-select">
-                <option value="all">All bookings</option>
-                <option value="confirmed">Confirmed</option>
-                <option value="pending">Pending</option>
-                <option value="cancelled">Cancelled</option>
-            </select>
-
-        </div>
-
-        <div class="table-wrap">
-
-            <table>
-
-                <thead>
-                    <tr>
-                        <th>Booking</th>
-<th>Guest</th>
-<th>Check-in</th>
-<th>Check-out</th>
-<th>Nights</th>
-<th>Guests</th>
-<th>Total</th>
-<th>Status</th>
-<th>Payment</th>
-<th></th>
-                    </tr>
-                </thead>
-
-                <tbody id="bookingBody"></tbody>
-
-            </table>
-
-            <div id="bookingMessage" class="message">
-                Loading bookings...
-            </div>
-
-        </div>
-
+    <section aria-label="Booking overview">
+      <div class="timeline-stats">
+        <div class="timeline-stat present"><span>Currently in-house</span><strong id="presentCount">0</strong></div>
+        <div class="timeline-stat upcoming"><span>Upcoming bookings</span><strong id="upcomingCount">0</strong></div>
+        <div class="timeline-stat"><span>Total bookings</span><strong id="totalCount">0</strong></div>
+      </div>
+      <div class="toolbar">
+        <div class="search-box"><input type="search" id="bookingSearch" placeholder="Search guest or booking reference..."></div>
+        <select id="statusFilter" class="filter-select" aria-label="Filter by status">
+          <option value="all">All bookings</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="pending">Pending</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <select id="sourceFilter" class="filter-select" aria-label="Filter by booking source">
+          <option value="all">All sources</option>
+          <option value="private">Private</option>
+          <option value="booking.com">Booking.com</option>
+          <option value="lekkeslaap">LekkeSlaap</option>
+          <option value="airbnb">Airbnb</option>
+        </select>
+        <button class="action-btn" type="button" id="clearFilters">Clear filters</button>
+      </div>
+      <div id="bookingMessage" class="message" role="status">Loading bookings...</div>
+      <div id="bookingGroups" class="booking-groups"></div>
     </section>
 
 </main>
@@ -1189,6 +1204,8 @@ function applyFilters() {
             .toLowerCase();
 
 
+    const sourceFilter = document.getElementById("sourceFilter").value.toLowerCase();
+
     const filtered =
         allBookings.filter(booking => {
 
@@ -1243,7 +1260,8 @@ function applyFilters() {
 
             return (
                 matchesSearch &&
-                matchesStatus
+                matchesStatus &&
+                (sourceFilter === "all" || String(booking.booking_source || "").toLowerCase() === sourceFilter)
             );
         });
 
@@ -1300,114 +1318,116 @@ function getPaymentStatus(booking) {
    DISPLAY BOOKINGS
 ========================= */
 
-function displayBookings(bookings) {
-
-    const body =
-        document.getElementById(
-            "bookingBody"
-        );
-
-    const message =
-        document.getElementById(
-            "bookingMessage"
-        );
-
-    body.innerHTML = "";
-
-
-    if (!bookings.length) {
-
-        message.style.display = "block";
-        message.className = "message";
-        message.textContent =
-            "No bookings found.";
-
-        return;
-    }
-
-
-    message.style.display = "none";
-
-
-    bookings.forEach(booking => {
-
-        const row =
-            document.createElement("tr");
-
-
-        const guestCount =
-            Number(booking.adults || 0) +
-            Number(booking.children || 0);
-
-
-        const total =
-            booking.total_due ??
-            booking.total_amount ??
-            0;
-
-
-        const status =
-            booking.booking_status ||
-            "confirmed";
-const paymentStatus =
-    getPaymentStatus(booking);
-
-        row.innerHTML = `
-            <td class="booking-number">
-                ${booking.booking_number || "-"}
-            </td>
-
-            <td>
-                ${booking.guest_name || "-"}
-            </td>
-
-            <td>
-                ${formatDate(booking.check_in)}
-            </td>
-
-            <td>
-                ${formatDate(booking.check_out)}
-            </td>
-
-            <td>
-                ${booking.number_of_nights || 0}
-            </td>
-
-            <td>
-                ${guestCount}
-            </td>
-
-            <td class="amount">
-                ${money(total)}
-            </td>
-
-          <td>
-    <span class="status ${statusClass(status)}">
-        ${status}
-    </span>
-</td>
-
-<td>
-    <span class="payment-badge ${paymentStatus.className}">
-        ${paymentStatus.label}
-    </span>
-</td>
-
-<td>
-    <button
-        class="action-btn"
-        onclick="viewBooking(${booking.id})"
-    >
-        View
-    </button>
-</td>
-        `;
-
-
-        body.appendChild(row);
-    });
+function todayLocalISO() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
+function isCancelled(booking) {
+    return ['cancelled','canceled'].includes(String(booking.booking_status || '').toLowerCase());
+}
+function isConfirmed(booking) {
+    return ['confirmed','accepted','booked'].includes(String(booking.booking_status || '').toLowerCase());
+}
+function bookingCategory(booking, today) {
+    if (isCancelled(booking)) return 'cancelled';
+    if (!isConfirmed(booking)) return 'pending';
+    if (booking.check_in && booking.check_out && booking.check_in <= today && today < booking.check_out) return 'present';
+    if (booking.check_in && booking.check_in > today) return 'upcoming';
+    return 'past';
+}
+function safeText(value) {
+    return String(value ?? '-').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+function updateTimelineStats() {
+    const today = todayLocalISO();
+    const counts = {present:0,upcoming:0};
+    for (const booking of allBookings) {
+        const category = bookingCategory(booking, today);
+        if (category in counts) counts[category]++;
+    }
+    document.getElementById('presentCount').textContent = counts.present;
+    document.getElementById('upcomingCount').textContent = counts.upcoming;
+    document.getElementById('totalCount').textContent = allBookings.length;
+}
+function displayBookings(bookings) {
+    const groups = document.getElementById('bookingGroups');
+    const message = document.getElementById('bookingMessage');
+    groups.replaceChildren();
+    updateTimelineStats();
+    if (!bookings.length) {
+        message.style.display = 'block';
+        message.className = 'message';
+        message.textContent = 'No bookings match your filters.';
+        return;
+    }
+    message.style.display = 'none';
+    const today = todayLocalISO();
+    const buckets = {present:[], upcoming:[], pending:[], past:[], cancelled:[]};
+    bookings.forEach(b => buckets[bookingCategory(b, today)].push(b));
+    buckets.present.sort((a,b) => (a.check_out||'').localeCompare(b.check_out||''));
+    buckets.upcoming.sort((a,b) => (a.check_in||'').localeCompare(b.check_in||''));
+    buckets.pending.sort((a,b) => (a.check_in||'').localeCompare(b.check_in||''));
+    buckets.past.sort((a,b) => (b.check_out||'').localeCompare(a.check_out||''));
+    buckets.cancelled.sort((a,b) => (b.check_in||'').localeCompare(a.check_in||''));
+    const definitions = [
+        ['present','Present Guests','Guests currently staying at the apartment'],
+        ['upcoming','Upcoming Bookings','Confirmed future arrivals, with the next arrival highlighted'],
+        ['pending','Pending Bookings','Reservations awaiting confirmation'],
+        ['past','Past / Completed Bookings','Previous guest stays'],
+        ['cancelled','Cancelled Bookings','Cancelled reservations retained for your records']
+    ];
+    for (const [category,title,subtitle] of definitions) {
+        const items = buckets[category];
+        if (!items.length) continue;
+        const section = document.createElement('section');
+        section.className = `booking-group ${category}`;
+        const heading = document.createElement('div');
+        heading.className = 'booking-group-head';
+        const headingText = document.createElement('div');
+        const h2 = document.createElement('h2');
+        h2.textContent = `${title} (${items.length})`;
+        const p = document.createElement('p');
+        p.textContent = subtitle;
+        headingText.append(h2,p);
+        const count = document.createElement('span');
+        count.className = 'group-count';
+        count.textContent = category === 'upcoming' ? `Next: ${formatDate(items[0].check_in)}` : `${items.length} booking${items.length === 1 ? '' : 's'}`;
+        heading.append(headingText,count);
+        section.append(heading);
+        const wrap = document.createElement('div');
+        wrap.className = 'group-table-wrap';
+        const table = document.createElement('table');
+        table.className = 'group-table';
+        table.innerHTML = '<thead><tr><th>Booking</th><th>Guest</th><th>Check-in</th><th>Check-out</th><th>Nights</th><th>Guests</th><th>Total</th><th>Status</th><th>Payment</th><th>Action</th></tr></thead>';
+        const tbody = document.createElement('tbody');
+        items.forEach((booking,index) => {
+            const row = document.createElement('tr');
+            const paymentStatus = getPaymentStatus(booking);
+            const status = booking.booking_status || 'confirmed';
+            const guestCount = Number(booking.adults || 0) + Number(booking.children || 0);
+            const total = booking.total_due ?? booking.total_amount ?? 0;
+            const tag = category === 'present' ? 'In-house now' : category === 'upcoming' && index === 0 ? 'Next arrival' : '';
+            row.innerHTML = `
+              <td class="booking-number">${safeText(booking.booking_number)}</td>
+              <td><strong>${safeText(booking.guest_name)}</strong>${tag ? `<div><span class="timeline-tag ${category}">${tag}</span></div>` : ''}</td>
+              <td>${safeText(formatDate(booking.check_in))}</td>
+              <td>${safeText(formatDate(booking.check_out))}</td>
+              <td>${Number(booking.number_of_nights)||0}</td>
+              <td>${guestCount}</td>
+              <td class="amount">${money(total)}</td>
+              <td><span class="status ${statusClass(status)}">${safeText(status)}</span></td>
+              <td><span class="payment-badge ${paymentStatus.className}">${safeText(paymentStatus.label)}</span></td>
+              <td><button type="button" class="action-btn">View</button></td>`;
+            row.querySelector('button').addEventListener('click', () => viewBooking(booking.id));
+            tbody.append(row);
+        });
+        table.append(tbody);
+        wrap.append(table);
+        section.append(wrap);
+        groups.append(section);
+    }
+}
 
 /* =========================
    VIEW BOOKING
@@ -1436,6 +1456,14 @@ document
         "change",
         applyFilters
     );
+document.getElementById('sourceFilter').addEventListener('change', applyFilters);
+document.getElementById('clearFilters').addEventListener('click', () => {
+    document.getElementById('bookingSearch').value = '';
+    document.getElementById('statusFilter').value = 'all';
+    document.getElementById('sourceFilter').value = 'all';
+    applyFilters();
+});
+
 document
     .getElementById("reportMonth")
     .addEventListener(
