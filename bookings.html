@@ -548,6 +548,9 @@ tbody tr:hover {
 .timeline-tag.pending{background:#fff2d1;color:#825900}
 .group-empty{padding:18px;color:var(--muted);font-size:14px}
 .toolbar{border-radius:12px;flex-wrap:wrap}
+.export-excel-btn{background:var(--gold);border:1px solid #bb8c28;color:#19251f;padding:11px 16px;border-radius:8px;font-weight:800;cursor:pointer;white-space:nowrap}
+.export-excel-btn:hover{background:var(--gold-light)}
+.export-excel-btn:disabled{opacity:.6;cursor:wait}
 @media(max-width:700px){.timeline-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.timeline-stat{padding:11px 9px}.timeline-stat strong{font-size:23px}.timeline-stat span{font-size:10px}.booking-group-head h2{font-size:16px}.booking-group-head{padding:13px}.summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 </style>
@@ -746,6 +749,7 @@ tbody tr:hover {
           <option value="airbnb">Airbnb</option>
         </select>
         <button class="action-btn" type="button" id="clearFilters">Clear filters</button>
+        <button class="export-excel-btn" type="button" id="exportUpcomingBtn">⬇ Export Upcoming to Excel</button>
       </div>
       <div id="bookingMessage" class="message" role="status">Loading bookings...</div>
       <div id="bookingGroups" class="booking-groups"></div>
@@ -754,6 +758,7 @@ tbody tr:hover {
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <script>
 
@@ -1430,6 +1435,66 @@ function displayBookings(bookings) {
 }
 
 /* =========================
+   EXPORT UPCOMING BOOKINGS TO EXCEL
+   All confirmed future arrivals, regardless of screen filters.
+========================= */
+function excelSafeText(value) {
+    const text = String(value ?? '').trim();
+    // Treat guest names as text, never as spreadsheet formulas.
+    return /^[=+\-@\t\r]/.test(text) ? "'" + text : text;
+}
+
+function excelDate(isoDate) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(isoDate || ''))) return '';
+    const [year, month, day] = isoDate.split('-').map(Number);
+    return new Date(Date.UTC(year, month - 1, day, 12));
+}
+
+function exportUpcomingBookings() {
+    const button = document.getElementById('exportUpcomingBtn');
+    if (!window.XLSX) {
+        alert('Excel export library could not load. Check your internet connection and refresh the page.');
+        return;
+    }
+    const today = todayLocalISO();
+    const upcoming = allBookings
+        .filter(booking => bookingCategory(booking, today) === 'upcoming')
+        .sort((a, b) => (a.check_in || '').localeCompare(b.check_in || ''));
+
+    if (!upcoming.length) {
+        alert('There are no confirmed upcoming bookings to export.');
+        return;
+    }
+
+    button.disabled = true;
+    try {
+        const rows = upcoming.map(booking => ({
+            'Guest Name and Surname': excelSafeText(booking.guest_name),
+            'Check-in': excelDate(booking.check_in),
+            'Check-out': excelDate(booking.check_out),
+            'Nights': Number(booking.number_of_nights) || 0,
+            'Total Guests': (Number(booking.adults) || 0) + (Number(booking.children) || 0)
+        }));
+        const sheet = XLSX.utils.json_to_sheet(rows, {cellDates: true});
+        sheet['!cols'] = [{wch:32}, {wch:17}, {wch:17}, {wch:12}, {wch:16}];
+        sheet['!autofilter'] = {ref: sheet['!ref']};
+        for (let i = 2; i <= rows.length + 1; i++) {
+            for (const col of ['B','C']) {
+                if (sheet[col + i] && sheet[col + i].t === 'd') sheet[col + i].z = 'dd mmm yyyy';
+            }
+        }
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, sheet, 'Upcoming Bookings');
+        XLSX.writeFile(workbook, `RSAinn_Upcoming_Bookings_${today}.xlsx`);
+    } catch (error) {
+        console.error('Excel export failed:', error);
+        alert('Unable to export upcoming bookings: ' + error.message);
+    } finally {
+        button.disabled = false;
+    }
+}
+
+/* =========================
    VIEW BOOKING
 ========================= */
 
@@ -1457,6 +1522,7 @@ document
         applyFilters
     );
 document.getElementById('sourceFilter').addEventListener('change', applyFilters);
+document.getElementById('exportUpcomingBtn').addEventListener('click', exportUpcomingBookings);
 document.getElementById('clearFilters').addEventListener('click', () => {
     document.getElementById('bookingSearch').value = '';
     document.getElementById('statusFilter').value = 'all';
