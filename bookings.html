@@ -554,9 +554,11 @@ tbody tr:hover {
 @media(max-width:700px){.timeline-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.timeline-stat{padding:11px 9px}.timeline-stat strong{font-size:23px}.timeline-stat span{font-size:10px}.booking-group-head h2{font-size:16px}.booking-group-head{padding:13px}.summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
 </style>
-</head>
+<style>html:not(.rsainn-authenticated) body > :not(#rsainn-auth-check):not(script) { visibility:hidden!important; }
+#rsainn-auth-check { position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:#f7f3e8;color:#003b2f;font:600 16px Arial,sans-serif;padding:24px;text-align:center; }
+</style></head>
 
-<body>
+<body><div id="rsainn-auth-check" role="status" aria-live="polite">Verifying RSAinn staff access...</div>
 
 <header class="topbar">
 
@@ -760,7 +762,7 @@ tbody tr:hover {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-<script>
+<script type="text/plain" id="rsainn-protected-page-code">
 
 /* =========================
    SUPABASE
@@ -1545,5 +1547,6 @@ loadBookings();
 
 </script>
 
+<script src="auth-guard.js"></script>
 </body>
 </html>

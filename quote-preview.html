@@ -502,9 +502,11 @@ button,
     font-weight: 600;
 }
 </style>
-</head>
+<style>html:not(.rsainn-authenticated) body > :not(#rsainn-auth-check):not(script) { visibility:hidden!important; }
+#rsainn-auth-check { position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:#f7f3e8;color:#003b2f;font:600 16px Arial,sans-serif;padding:24px;text-align:center; }
+</style></head>
 
-<body>
+<body><div id="rsainn-auth-check" role="status" aria-live="polite">Verifying RSAinn staff access...</div>
 
 <header>
 
@@ -790,7 +792,7 @@ button,
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 
-<script>
+<script type="text/plain" id="rsainn-protected-page-code">
 
 const SUPABASE_URL =
 "https://xhxwjaobubxbretiqwsr.supabase.co";
@@ -1299,5 +1301,6 @@ loadQuote();
 
 </script>
 
+<script src="auth-guard.js"></script>
 </body>
 </html>
