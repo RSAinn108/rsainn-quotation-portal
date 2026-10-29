@@ -481,9 +481,11 @@ body{
   }
 }
 </style>
-</head>
+<style>html:not(.rsainn-authenticated) body > :not(#rsainn-auth-check):not(script) { visibility:hidden!important; }
+#rsainn-auth-check { position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:#f7f3e8;color:#003b2f;font:600 16px Arial,sans-serif;padding:24px;text-align:center; }
+</style></head>
 
-<body>
+<body><div id="rsainn-auth-check" role="status" aria-live="polite">Verifying RSAinn staff access...</div>
 
 <header class="topbar">
   <div class="brand">
@@ -667,7 +669,7 @@ body{
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script>
+<script type="text/plain" id="rsainn-protected-page-code">
 
 /* =========================================
    RSAinn SUPABASE CONNECTION
@@ -1488,5 +1490,6 @@ loadRates();
 
 </script>
 
+<script src="auth-guard.js"></script>
 </body>
 </html>
