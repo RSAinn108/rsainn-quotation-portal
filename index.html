@@ -1,3 +1,4 @@
+```
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -391,7 +392,7 @@
       }
 
       .user-area {
-        display: none;
+        display: block;
       }
 
       .container {
@@ -415,10 +416,40 @@
         padding: 0 8px;
       }
     }
+    /* RSAinn secure login */
+    html:not(.rsainn-authorized) .topbar,
+    html:not(.rsainn-authorized) .nav,
+    html:not(.rsainn-authorized) main,
+    html:not(.rsainn-authorized) footer { display:none !important; }
+    #authScreen { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; background:linear-gradient(140deg,#00271f,#075844); }
+    html.rsainn-authorized #authScreen { display:none; }
+    .auth-card { width:min(100%,440px); background:#fff; padding:36px; border-radius:16px; box-shadow:0 18px 55px #0004; }
+    .auth-card h1 { margin:0 0 8px; font:normal 30px Georgia,serif; color:#003b2f; }
+    .auth-card p { color:#68746f; line-height:1.5; }
+    .auth-card label { display:block; font-weight:700; margin:16px 0 6px; }
+    .auth-card input { width:100%; padding:13px; border:1px solid #cbd5cf; border-radius:8px; font:inherit; }
+    .auth-card button { width:100%; margin-top:22px; padding:14px; border:0; border-radius:8px; background:#d6a63c; color:#18201d; font-weight:800; cursor:pointer; }
+    .auth-card button:disabled { opacity:.65; cursor:wait; }
+    #authMessage { min-height:24px; font-size:13px; color:#b42318; }
+    #logoutButton { background:#003b2f; color:#fff; border:1px solid #d6a63c; padding:8px 13px; border-radius:7px; cursor:pointer; margin-left:14px; }
+    @media(max-width:560px){.auth-card{padding:25px}.topbar{flex-wrap:wrap}#logoutButton{margin:10px 0 0}}
   </style>
 </head>
 
 <body>
+
+  <section id="authScreen" aria-label="RSAinn staff login">
+    <form id="authForm" class="auth-card">
+      <h1>RSAinn Staff Login</h1>
+      <p>Sign in to access the private quotation portal.</p>
+      <label for="authEmail">Email address</label>
+      <input id="authEmail" type="email" autocomplete="username" required>
+      <label for="authPassword">Password</label>
+      <input id="authPassword" type="password" autocomplete="current-password" required>
+      <button id="authSubmit" type="submit">Sign in securely</button>
+      <p id="authMessage" role="alert" aria-live="polite"></p>
+    </form>
+  </section>
 
   <!-- ========================
        HEADER
@@ -433,7 +464,8 @@
     <div class="user-area">
       <strong>RSAinn Holiday Getaways</strong>
       Driftsands 108
-    </div>
+    <button type="button" id="logoutButton">Log out</button>
+</div>
 
   </header>
 
@@ -892,9 +924,85 @@ document.getElementById("pendingPaymentsAmount").textContent =
 }
 
 
-// Load dashboard when page opens
-loadDashboardStats();
+// Load dashboard only after a verified RSAinn staff login.
+const authForm = document.getElementById("authForm");
+const authMessage = document.getElementById("authMessage");
+const authSubmit = document.getElementById("authSubmit");
+let authorizedUserId = null;
+let authCheckVersion = 0;
+
+function showPrivatePortal(allowed) {
+  document.documentElement.classList.toggle("rsainn-authorized", allowed);
+}
+
+async function verifyStaffSession() {
+  const version = ++authCheckVersion;
+  showPrivatePortal(false);
+  authorizedUserId = null;
+  authMessage.textContent = "Checking access...";
+  try {
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser();
+    if (userError || !userData?.user) {
+      authMessage.textContent = "";
+      return;
+    }
+    const { data: allowed, error: permissionError } =
+      await supabaseClient.rpc("is_rsainn_staff");
+    if (version !== authCheckVersion) return;
+    if (permissionError) throw permissionError;
+    if (allowed !== true) {
+      authMessage.textContent = "This account is not authorized for RSAinn staff access.";
+      await supabaseClient.auth.signOut();
+      return;
+    }
+    authorizedUserId = userData.user.id;
+    authMessage.textContent = "";
+    showPrivatePortal(true);
+    await loadDashboardStats();
+  } catch (err) {
+    if (version !== authCheckVersion) return;
+    console.error("RSAinn login verification failed:", err);
+    authMessage.textContent = "Unable to verify access. Please try again.";
+  }
+}
+
+authForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  authSubmit.disabled = true;
+  authMessage.textContent = "Signing in...";
+  try {
+    const { error } = await supabaseClient.auth.signInWithPassword({
+      email: document.getElementById("authEmail").value.trim(),
+      password: document.getElementById("authPassword").value
+    });
+    document.getElementById("authPassword").value = "";
+    if (error) throw error;
+    await verifyStaffSession();
+  } catch (err) {
+    authMessage.textContent = err.message || "Sign-in failed.";
+  } finally {
+    authSubmit.disabled = false;
+  }
+});
+
+document.getElementById("logoutButton").addEventListener("click", async () => {
+  ++authCheckVersion;
+  authorizedUserId = null;
+  showPrivatePortal(false);
+  await supabaseClient.auth.signOut();
+  authMessage.textContent = "Signed out.";
+});
+
+supabaseClient.auth.onAuthStateChange((event) => {
+  if (event === "SIGNED_OUT") {
+    ++authCheckVersion;
+    authorizedUserId = null;
+    showPrivatePortal(false);
+  }
+});
+verifyStaffSession();
   
 </script>
 </body>
 </html>
+```
